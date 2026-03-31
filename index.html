@@ -2079,23 +2079,24 @@ async function pushSync() {
   };
 
   try {
-    const binId = getBinId();
+    let currentBinId = getBinId();
+    let finalBinId = currentBinId;
 
-    if (binId) {
+    if (currentBinId) {
       // Update existing bin
-      const res = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
+      const res = await fetch(`${JSONBIN_BASE}/b/${currentBinId}`, {
         method: 'PUT',
         headers: { 'Content-Type':'application/json', 'X-Master-Key': apiKey },
         body: JSON.stringify(payload)
       });
       if (!res.ok) {
         const err=await res.json().catch(()=>({}));
-        // Bin may have been deleted — fall through to create new
         if (res.status===404||res.status===403) { setBinId(''); return pushSync(); }
         throw new Error(err.message||`HTTP ${res.status}`);
       }
+      // finalBinId stays as currentBinId
     } else {
-      // Create new bin named by passphrase hash (private by default)
+      // Create new bin
       const res = await fetch(`${JSONBIN_BASE}/b`, {
         method: 'POST',
         headers: { 'Content-Type':'application/json', 'X-Master-Key': apiKey, 'X-Bin-Name': `bloom-${hashStr(syncCode)}`, 'X-Bin-Private': 'true' },
@@ -2106,17 +2107,39 @@ async function pushSync() {
         throw new Error(err.message||`HTTP ${res.status}`);
       }
       const data=await res.json();
-      setBinId(data.metadata?.id||data.record?.metadata?.id||'');
+      // JSONBin returns id at various paths depending on version
+      finalBinId = data?.record?.id || data?.metadata?.id || data?.record?.metadata?.id || '';
+      if (finalBinId) setBinId(finalBinId);
     }
 
-    const binId = getBinId();
     setSyncStatus(`✓ Pushed at ${new Date().toLocaleTimeString()}`);
     showToast('⬆ Data pushed to cloud');
 
-    // Show the bin ID so other devices can use it if auto-discovery fails
-    if (binId) {
+    // Always show bin ID after push
+    const displayId = finalBinId || getBinId();
+    if (displayId) {
       document.getElementById('syncBinIdDisplay').style.display='block';
-      document.getElementById('syncBinIdLabel').textContent=binId;
+      document.getElementById('syncBinIdLabel').textContent=displayId;
+    } else {
+      // Bin ID still missing — fetch it from JSONBin bin list as fallback
+      const listRes = await fetch(`${JSONBIN_BASE}/b`, { headers:{'X-Master-Key':apiKey} });
+      if (listRes.ok) {
+        const list = await listRes.json();
+        const bins = Array.isArray(list) ? list : Array.isArray(list.record) ? list.record : [];
+        const target = `bloom-${hashStr(syncCode)}`;
+        const match = bins.find(b => {
+          const name = b.record?.snippetMeta?.name || b.record?.name || b.name || '';
+          return name === target;
+        });
+        const foundId = match?.record?.id || match?.id || '';
+        if (foundId) {
+          setBinId(foundId);
+          document.getElementById('syncBinIdDisplay').style.display='block';
+          document.getElementById('syncBinIdLabel').textContent=foundId;
+        } else {
+          setSyncStatus(`✓ Pushed. Check JSONBin dashboard for your Bin ID.`);
+        }
+      }
     }
   } catch(err) {
     setSyncStatus(`✗ Push failed: ${err.message}`);
