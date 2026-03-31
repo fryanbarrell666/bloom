@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bloom — Fertility Tracker</title>
+
+<!-- PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Bloom">
+<meta name="theme-color" content="#faf6f1">
+<link rel="manifest" href="manifest.json">
+
+<!-- Apple touch icon (inline SVG converted to data URI for single-file deploy) -->
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f1; --warm-white: #fff9f4; --blush: #e8c5b0;
+    --terracotta: #c47a5a; --deep-rose: #9e4f3b; --sage: #8aaa8c;
+    --charcoal: #2d2420; --mid: #7a5f54; --light-mid: #c4a898;
+    --ink: #3d2b24; --paper: #f5ede4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; font-size: 14px; }
+  .app { max-width: 860px; margin: 0 auto; padding: 0 16px calc(80px + env(safe-area-inset-bottom)); }
+
+  /* HEADER */
+  header { padding: 28px 0 18px; text-align: center; }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: var(--deep-rose); letter-spacing: 0.04em; line-height: 1; }
+  .logo span { font-style: italic; font-weight: 400; }
+  .tagline { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--light-mid); margin-top: 5px; font-weight: 300; }
+  .header-meta { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .cycle-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 1px solid var(--blush); border-radius: 20px; padding: 4px 13px; font-size: 12px; color: var(--mid); }
+  .cycle-badge strong { color: var(--deep-rose); font-weight: 500; }
+  .sync-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--paper); border: 1px solid var(--blush); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--mid); cursor: pointer; transition: all 0.2s; }
+  .sync-pill:hover { border-color: var(--terracotta); color: var(--terracotta); }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--light-mid); transition: background 0.3s; }
+  .sync-pill.connected .sync-dot { background: var(--sage); }
+  .sync-pill.syncing .sync-dot { background: var(--terracotta); animation: pulse 0.8s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+  /* NAV */
+  nav { display: flex; gap: 4px; background: var(--paper); border-radius: 14px; padding: 4px; margin-bottom: 18px; border: 1px solid var(--blush); }
+  nav button { flex: 1; padding: 8px 6px; border: none; border-radius: 10px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400; color: var(--mid); cursor: pointer; transition: all 0.2s; }
+  nav button.active { background: var(--warm-white); color: var(--deep-rose); font-weight: 500; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+  /* STATUS BAR */
+  .status-bar { background: linear-gradient(135deg,rgba(196,122,90,0.08),rgba(138,170,140,0.08)); border: 1px solid var(--blush); border-radius: 14px; padding: 13px 17px; margin-bottom: 14px; display: flex; align-items: center; gap: 13px; }
+  .status-icon { font-size: 24px; flex-shrink: 0; }
+  .status-text strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 400; color: var(--charcoal); }
+  .status-text span { font-size: 12px; color: var(--mid); }
+
+  /* GRAPH CARD */
+  .graph-card { background: var(--warm-white); border: 1px solid rgba(196,122,90,0.18); border-radius: 18px; padding: 18px 20px 14px; margin-bottom: 14px; box-shadow: 0 2px 16px rgba(158,79,59,0.04); }
+  .graph-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  .graph-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400; color: var(--charcoal); }
+  .graph-sub { font-size: 10px; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+  .fertile-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .fertile-chip.fertile { background: rgba(138,170,140,0.2); color: #3d7050; }
+  .fertile-chip.peak    { background: rgba(158,79,59,0.15); color: var(--deep-rose); }
+  .fertile-chip.luteal  { background: rgba(196,122,90,0.1); color: var(--mid); }
+  .fertile-chip.follicular { background: rgba(138,170,140,0.1); color: var(--mid); }
+  .days-to { font-size: 10px; color: var(--light-mid); margin-top: 3px; text-align: right; }
+  .graph-wrap { position: relative; width: 100%; margin: 8px 0 6px; cursor: grab; user-select: none; }
+  .graph-wrap:active { cursor: grabbing; }
+  .graph-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 2px; }
+  .gl { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--mid); }
+  .gl-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .gl-line { width: 14px; height: 2px; border-radius: 1px; flex-shrink: 0; }
+  .gl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* CARDS */
+  .card { background: var(--warm-white); border: 1px solid rgba(196,122,90,0.18); border-radius: 18px; padding: 18px 20px; margin-bottom: 14px; box-shadow: 0 2px 16px rgba(158,79,59,0.04); }
+  .card-title { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 400; color: var(--charcoal); margin-bottom: 3px; }
+  .card-sub { font-size: 10px; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
+
+  /* FORMS */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  label { font-size: 10px; font-weight: 500; color: var(--mid); letter-spacing: 0.08em; text-transform: uppercase; }
+  input[type="text"],input[type="date"],input[type="number"],select,textarea { width: 100%; padding: 9px 13px; border: 1.5px solid var(--blush); border-radius: 10px; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
+  input:focus,select:focus,textarea:focus { border-color: var(--terracotta); background: var(--warm-white); }
+  textarea { resize: vertical; min-height: 66px; line-height: 1.5; }
+
+  /* LH */
+  .lh-options { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .lh-option { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 9px 6px; border: 1.5px solid var(--blush); border-radius: 12px; cursor: pointer; transition: all 0.2s; background: var(--cream); }
+  .lh-option:hover { border-color: var(--terracotta); }
+  .lh-option.selected { border-color: var(--terracotta); background: rgba(196,122,90,0.08); }
+  .lh-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; }
+  .lh-option[data-val="none"] .lh-dot { background: transparent; color: var(--blush); }
+  .lh-option[data-val="low"]  .lh-dot { background: rgba(138,170,140,0.3); color: var(--sage); }
+  .lh-option[data-val="high"] .lh-dot { background: rgba(196,122,90,0.4); color: var(--terracotta); }
+  .lh-option[data-val="peak"] .lh-dot { background: var(--deep-rose); color: var(--deep-rose); }
+  .lh-label { font-size: 9px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mid); }
+  .lh-option.selected .lh-label { color: var(--deep-rose); }
+
+  /* PERIOD */
+  .period-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .period-btn { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1.5px solid var(--blush); border-radius: 10px; cursor: pointer; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--mid); transition: all 0.2s; font-weight: 400; }
+  .period-btn.active { border-color: var(--terracotta); background: rgba(196,122,90,0.1); color: var(--terracotta); }
+  .period-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
+  .btn-save { width: 100%; padding: 12px; background: linear-gradient(135deg,var(--terracotta),var(--deep-rose)); border: none; border-radius: 12px; color: white; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; letter-spacing: 0.04em; margin-top: 6px; transition: all 0.25s; }
+  .btn-save:hover { opacity: 0.9; }
+  .btn-save:active { transform: scale(0.99); }
+  .btn-save.locked { background: rgba(122,95,84,0.1); color: var(--sage); border: 1.5px solid rgba(138,170,140,0.4); cursor: default; opacity: 1; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .btn-save.locked:hover { opacity: 1; }
+  .form-locked input, .form-locked select, .form-locked textarea { opacity: 0.45; pointer-events: none; }
+  .form-locked .lh-option, .form-locked .period-btn { opacity: 0.45; pointer-events: none; cursor: default; }
+  .edit-entry-link { display: block; text-align: center; margin-top: 8px; font-size: 11px; color: var(--light-mid); cursor: pointer; letter-spacing: 0.04em; }
+  .edit-entry-link:hover { color: var(--terracotta); }
+
+  /* CALENDAR */
+  .cycle-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cycle-nav button { background: var(--paper); border: 1px solid var(--blush); border-radius: 8px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--mid); cursor: pointer; }
+  .month-label { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 400; color: var(--charcoal); }
+  .cycle-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-bottom: 14px; }
+  .cycle-day-header { text-align: center; font-size: 9px; font-weight: 500; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 3px; }
+  .cycle-day { aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; transition: all 0.15s; border: 1.5px solid transparent; }
+  .cycle-day:hover { border-color: var(--blush); }
+  .cycle-day .day-num { font-weight: 400; line-height: 1; }
+  .cycle-day .day-dots { display: flex; gap: 2px; margin-top: 1px; }
+  .dd { width: 3px; height: 3px; border-radius: 50%; }
+  .cycle-day.is-period  { background: rgba(196,122,90,0.22); }
+  .cycle-day.is-fertile { background: rgba(100,160,110,0.22); border-color: rgba(100,160,110,0.6) !important; }
+  .cycle-day.is-fertile .day-num { color: #3a7a4a; font-weight: 500; }
+  .cycle-day.is-peak    { background: rgba(158,79,59,0.22); border-color: var(--deep-rose) !important; border-width: 2px !important; }
+  .cycle-day.is-peak .day-num { color: var(--deep-rose); font-weight: 600; }
+  .cycle-day.is-today   { border-color: var(--terracotta) !important; }
+  .cycle-day.is-today .day-num { color: var(--deep-rose); font-weight: 600; }
+  .cycle-day.future { opacity: 0.44; }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--mid); }
+  .legend-swatch { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* TAGS */
+  .tag { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+  .tag-period  { background: rgba(196,122,90,0.14); color: var(--terracotta); }
+  .tag-lh-none { background: rgba(122,95,84,0.1); color: var(--mid); }
+  .tag-lh-low  { background: rgba(138,170,140,0.2); color: var(--sage); }
+  .tag-lh-high { background: rgba(196,122,90,0.2); color: var(--terracotta); }
+  .tag-lh-peak { background: rgba(158,79,59,0.14); color: var(--deep-rose); }
+  .tag-temp    { background: rgba(196,122,90,0.1); color: var(--terracotta); }
+
+  /* HISTORY */
+  .log-entry { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid rgba(196,122,90,0.1); align-items: flex-start; }
+  .log-entry:last-child { border-bottom: none; }
+  .log-date-col { flex-shrink: 0; text-align: center; width: 36px; }
+  .ld-day { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: var(--terracotta); line-height: 1; }
+  .ld-mon { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--light-mid); }
+  .log-data { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .log-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .log-note { font-size: 12px; color: var(--mid); font-style: italic; line-height: 1.5; }
+  .delete-btn { background: none; border: none; color: var(--blush); cursor: pointer; font-size: 13px; padding: 2px 4px; transition: color 0.2s; align-self: center; }
+  .delete-btn:hover { color: var(--terracotta); }
+
+  /* INSIGHTS */
+  .insight-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .insight-tile { background: var(--paper); border: 1px solid rgba(196,122,90,0.16); border-radius: 14px; padding: 13px; text-align: center; }
+  .i-val { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 300; color: var(--deep-rose); line-height: 1; }
+  .i-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--light-mid); margin-top: 3px; }
+
+  /* SETTINGS */
+  .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(196,122,90,0.1); font-size: 13px; }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row label { font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--ink); font-weight: 400; }
+  .settings-row input[type="number"] { width: 74px; text-align: center; }
+  .settings-row select { width: 138px; }
+  .data-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-outline { padding: 8px 14px; border: 1.5px solid var(--blush); border-radius: 10px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--mid); cursor: pointer; transition: all 0.2s; font-weight: 500; }
+  .btn-outline:hover { border-color: var(--terracotta); color: var(--terracotta); }
+  .btn-outline.danger:hover { border-color: #c0392b; color: #c0392b; }
+
+  /* SYNC PANEL */
+  .sync-panel { background: var(--warm-white); border: 1px solid rgba(196,122,90,0.18); border-radius: 18px; padding: 18px 20px; margin-bottom: 14px; }
+  .sync-panel h3 { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 400; color: var(--charcoal); margin-bottom: 3px; }
+  .sync-panel p { font-size: 12px; color: var(--mid); line-height: 1.65; margin-bottom: 13px; }
+  .sync-row { display: flex; gap: 8px; }
+  .sync-row input { flex: 1; }
+  .sync-row button { padding: 9px 16px; background: var(--terracotta); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; font-weight: 500; white-space: nowrap; }
+  .sync-row button:hover { background: var(--deep-rose); }
+  .sync-code-display { margin-top: 10px; padding: 9px 13px; background: var(--paper); border-radius: 10px; border: 1px dashed var(--blush); font-size: 12px; color: var(--mid); display: none; }
+  .sync-code-display span { font-family: monospace; font-size: 14px; color: var(--deep-rose); font-weight: 600; letter-spacing: 0.08em; }
+  .sync-status { margin-top: 9px; font-size: 12px; color: var(--mid); min-height: 17px; }
+  .sync-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; display: none; }
+  .sync-btns button { padding: 7px 13px; border: 1.5px solid var(--blush); border-radius: 10px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--mid); cursor: pointer; transition: all 0.2s; font-weight: 500; }
+  .sync-btns button:hover { border-color: var(--terracotta); color: var(--terracotta); }
+  .sync-btns button.primary { background: linear-gradient(135deg,var(--terracotta),var(--deep-rose)); color: white; border: none; }
+  .sync-btns button.primary:hover { opacity: 0.88; }
+  .sync-step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+  .sync-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--terracotta); color: white; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .sync-step-label { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+  .sync-step-sub { font-size: 11px; color: var(--mid); line-height: 1.55; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--charcoal); color: white; padding: 9px 20px; border-radius: 30px; font-size: 13px; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 100; pointer-events: none; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .section { display: none; }
+  .section.active { display: block; }
+  .empty { text-align: center; padding: 34px 20px; color: var(--light-mid); }
+  .empty-icon { font-size: 30px; margin-bottom: 8px; }
+  .empty-text { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 300; }
+  .empty-sub { font-size: 12px; margin-top: 5px; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(45,36,32,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--warm-white); border-radius: 20px; padding: 24px 20px; max-width: 350px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; margin-bottom: 7px; color: var(--charcoal); }
+  .modal p { font-size: 13px; color: var(--mid); line-height: 1.6; margin-bottom: 17px; }
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-btns button { flex: 1; padding: 10px; border-radius: 10px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; font-weight: 500; }
+  .btn-cancel { background: var(--paper); color: var(--mid); border: 1px solid var(--blush) !important; }
+  .btn-confirm { background: var(--deep-rose); color: white; }
+
+  /* PREDICT TAB */
+  .pred-day-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(196,122,90,0.08); }
+  .pred-day-row:last-child { border-bottom:none; }
+  .pred-day-date { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:300; color:var(--terracotta); width:52px; flex-shrink:0; }
+  .pred-day-bar-wrap { flex:1; height:8px; background:rgba(196,122,90,0.08); border-radius:4px; overflow:hidden; }
+  .pred-day-bar { height:100%; border-radius:4px; transition:width 0.4s; }
+  .pred-day-pct { font-size:12px; font-weight:500; width:36px; text-align:right; flex-shrink:0; }
+  .pred-day-label { font-size:10px; color:var(--light-mid); width:60px; text-align:right; flex-shrink:0; }
+  .pred-past-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(196,122,90,0.08); font-size:13px; }
+  .pred-past-row:last-child { border-bottom:none; }
+  .pred-past-cycle { font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--mid); width:80px; flex-shrink:0; }
+  .pred-past-detail { flex:1; color:var(--ink); font-size:12px; line-height:1.5; }
+  .pred-past-badge { font-size:9px; font-weight:600; padding:2px 7px; border-radius:10px; text-transform:uppercase; letter-spacing:0.05em; flex-shrink:0; }
+  .badge-confirmed { background:rgba(100,160,110,0.2); color:#3a7a4a; }
+  .badge-lh { background:rgba(158,79,59,0.12); color:var(--deep-rose); }
+  .badge-estimated { background:rgba(196,122,90,0.12); color:var(--mid); }
+
+  
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="logo"><span>Bloom</span></div>
+  <div class="tagline">Your Fertility Journal</div>
+  <div class="header-meta">
+    <div class="cycle-badge">Cycle day <strong id="headerCycleDay">—</strong> <span style="opacity:.4">·</span> <span id="headerPhase">—</span></div>
+    <div class="sync-pill" id="syncPill" onclick="showSection('settings');setTimeout(()=>document.getElementById('syncAnchor').scrollIntoView({behavior:'smooth'}),100)">
+      <div class="sync-dot"></div><span id="syncPillLabel">Sync</span>
+    </div>
+  </div>
+</header>
+
+<div class="status-bar">
+  <div class="status-icon" id="statusIcon">🌿</div>
+  <div class="status-text"><strong id="statusTitle">Loading…</strong><span id="statusDesc"></span></div>
+</div>
+
+<!-- ═══ FERTILE WINDOW + TEMP GRAPH ═══ -->
+<div class="graph-card" id="mainGraphCard">
+  <div class="graph-header">
+    <div>
+      <div class="graph-title">Temperature & Fertile Window</div>
+      <div class="graph-sub">Rolling 30-day view</div>
+    </div>
+    <div style="text-align:right">
+      <div class="fertile-chip" id="fertileChip"></div>
+      <div class="days-to" id="daysToLabel"></div>
+    </div>
+  </div>
+  <div class="graph-wrap" id="graphWrap"><canvas id="mainChart"></canvas></div>
+  <div class="graph-legend">
+    <div class="gl"><div class="gl-swatch" style="background:rgba(100,160,110,0.55)"></div>Fertile window</div>
+    <div class="gl"><div class="gl-swatch" style="background:rgba(100,160,110,0.28);border:1px solid rgba(80,140,90,0.5)"></div>Ovulation probability</div>
+    <div class="gl"><div class="gl-line" style="background:var(--terracotta)"></div>BBT temp</div>
+    <div class="gl"><div class="gl-line" style="background:rgba(196,122,90,0.4);height:0;border-top:1.5px dashed rgba(196,122,90,0.6)"></div>Coverline</div>
+    <div class="gl"><div class="gl-dot" style="background:var(--deep-rose)"></div>LH Peak</div>
+    <div class="gl"><div class="gl-dot" style="background:var(--terracotta);box-shadow:0 0 0 2px white,0 0 0 3.5px var(--terracotta)"></div>Today</div>
+  </div>
+</div>
+
+<nav>
+  <button class="active" onclick="showSection('log')">Log Today</button>
+  <button onclick="showSection('cycle')">Cycle</button>
+  <button onclick="showSection('history')">History</button>
+  <button onclick="showSection('predict')">Predict</button>
+  <button onclick="showSection('settings')">Settings</button>
+</nav>
+
+<!-- LOG -->
+<div id="sec-log" class="section active">
+  <div class="card" id="logCard">
+    <div class="card-title">Today's Log</div>
+    <div class="card-sub" id="todayDateLabel"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="logDate">
+      </div>
+      <div class="form-group">
+        <label>BBT Temp (°F)</label>
+        <input type="number" id="logTemp" step="0.01" min="96" max="100" placeholder="98.66" oninput="updateTempHint()">
+        <div id="tempHint" style="min-height:16px;font-size:11px;font-weight:500;letter-spacing:.03em;transition:color .2s"></div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:13px">
+      <label>LH Strip Result</label>
+      <div class="lh-options">
+        <div class="lh-option" data-val="none" onclick="selectLH(this)"><div class="lh-dot"></div><div class="lh-label">None</div></div>
+        <div class="lh-option" data-val="low"  onclick="selectLH(this)"><div class="lh-dot"></div><div class="lh-label">Low</div></div>
+        <div class="lh-option" data-val="high" onclick="selectLH(this)"><div class="lh-dot"></div><div class="lh-label">High</div></div>
+        <div class="lh-option" data-val="peak" onclick="selectLH(this)"><div class="lh-dot"></div><div class="lh-label">Peak ⚡</div></div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:13px">
+      <label>Period / Flow</label>
+      <div class="period-row">
+        <button class="period-btn" data-val="none"     onclick="selectPeriod(this)"><div class="period-dot" style="background:var(--blush)"></div>None</button>
+        <button class="period-btn" data-val="spotting" onclick="selectPeriod(this)"><div class="period-dot" style="background:#e8a87c"></div>Spotting</button>
+        <button class="period-btn" data-val="light"    onclick="selectPeriod(this)"><div class="period-dot" style="background:var(--terracotta)"></div>Light</button>
+        <button class="period-btn" data-val="medium"   onclick="selectPeriod(this)"><div class="period-dot" style="background:#b05a3a"></div>Medium</button>
+        <button class="period-btn" data-val="heavy"    onclick="selectPeriod(this)"><div class="period-dot" style="background:var(--deep-rose)"></div>Heavy</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:13px">
+      <label>Cervical Mucus (optional)</label>
+      <select id="logCM">
+        <option value="">— Not tracked —</option>
+        <option value="dry">Dry</option><option value="sticky">Sticky</option>
+        <option value="creamy">Creamy</option><option value="watery">Watery</option>
+        <option value="egg-white">Egg White (EWCM)</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:13px">
+      <label>Symptoms (optional)</label>
+      <div class="period-row" id="symptomBtns">
+        <button class="period-btn" data-val="cramps"            onclick="toggleSymptom(this)">Cramps</button>
+        <button class="period-btn" data-val="bloating"          onclick="toggleSymptom(this)">Bloating</button>
+        <button class="period-btn" data-val="breast-tenderness" onclick="toggleSymptom(this)">Breast Tender</button>
+        <button class="period-btn" data-val="mood-swings"       onclick="toggleSymptom(this)">Mood Swings</button>
+        <button class="period-btn" data-val="headache"          onclick="toggleSymptom(this)">Headache</button>
+        <button class="period-btn" data-val="nausea"            onclick="toggleSymptom(this)">Nausea</button>
+        <button class="period-btn" data-val="fatigue"           onclick="toggleSymptom(this)">Fatigue</button>
+        <button class="period-btn" data-val="high-sex-drive"    onclick="toggleSymptom(this)">↑ Sex Drive</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:13px">
+      <label>Notes</label>
+      <textarea id="logNote" placeholder="How are you feeling today?"></textarea>
+    </div>
+    <button class="btn-save" id="saveBtn" onclick="saveEntry()">Save Today's Log</button>
+    <div class="edit-entry-link" id="editEntryLink" style="display:none" onclick="unlockForm()">Edit entry</div>
+  </div>
+</div>
+
+<!-- CYCLE -->
+<div id="sec-cycle" class="section">
+  <div class="card">
+    <div class="cycle-nav">
+      <button onclick="prevMonth()">← Prev</button>
+      <div class="month-label" id="calMonthLabel"></div>
+      <button onclick="nextMonth()">Next →</button>
+    </div>
+    <div class="cycle-grid" id="calGrid">
+      <div class="cycle-day-header">Su</div><div class="cycle-day-header">Mo</div><div class="cycle-day-header">Tu</div>
+      <div class="cycle-day-header">We</div><div class="cycle-day-header">Th</div><div class="cycle-day-header">Fr</div><div class="cycle-day-header">Sa</div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(196,122,90,0.4)"></div>Period</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(100,160,110,0.6)"></div>Fertile Window</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--deep-rose)"></div>Peak / Ovulation</div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="sec-history" class="section">
+  <div class="card">
+    <div class="card-title">Log History</div>
+    <div class="card-sub" id="historyCount"></div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- PREDICT -->
+<div id="sec-predict" class="section">
+
+  <!-- Confidence + headline -->
+  <div class="card" id="pred-headline-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div>
+        <div class="card-title">Ovulation Prediction</div>
+        <div class="card-sub" id="pred-confidence-label">Calculating…</div>
+      </div>
+      <div id="pred-confidence-badge" style="display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:20px;font-size:12px;font-weight:500"></div>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--deep-rose);line-height:1.1" id="pred-headline">—</div>
+      <div style="font-size:12px;color:var(--mid);margin-top:5px;line-height:1.6" id="pred-subline"></div>
+    </div>
+  </div>
+
+  <!-- Probability curve canvas -->
+  <div class="graph-card">
+    <div class="graph-header">
+      <div>
+        <div class="graph-title">Ovulation Probability Curve</div>
+        <div class="graph-sub" id="pred-curve-sub">Current cycle · days from period start</div>
+      </div>
+    </div>
+    <div class="graph-wrap" style="cursor:default"><canvas id="predChart" style="display:block;width:100%"></canvas></div>
+    <div class="graph-legend" style="margin-top:6px">
+      <div class="gl"><div class="gl-dot" style="background:rgba(100,160,110,0.7)"></div>Probability of ovulation</div>
+      <div class="gl"><div class="gl-dot" style="background:var(--deep-rose)"></div>LH peak logged</div>
+      <div class="gl"><div class="gl-dot" style="background:var(--terracotta)"></div>BBT confirmed</div>
+      <div class="gl"><div class="gl-line" style="background:var(--terracotta);height:0;border-top:1.5px dashed rgba(196,122,90,0.7)"></div>Today</div>
+    </div>
+  </div>
+
+  <!-- Daily conception probability table -->
+  <div class="card">
+    <div class="card-title">Daily Conception Probability</div>
+    <div class="card-sub">This cycle · best days to try</div>
+    <div id="pred-daily-table"></div>
+  </div>
+
+  <!-- Past cycles retrospective -->
+  <div class="card">
+    <div class="card-title">Past Cycle Analysis</div>
+    <div class="card-sub">Ovulation confirmed by BBT shift or LH peak</div>
+    <div id="pred-past-cycles"></div>
+  </div>
+
+  <!-- Stats tiles -->
+  <div class="insight-row">
+    <div class="insight-tile"><div class="i-val" id="pred-avg-ov">—</div><div class="i-label">Avg Ovulation Day</div></div>
+    <div class="insight-tile"><div class="i-val" id="pred-ov-sd">—</div><div class="i-label">Cycle Variability (±days)</div></div>
+  </div>
+  <div class="insight-row">
+    <div class="insight-tile"><div class="i-val" id="pred-avg-cycle">—</div><div class="i-label">Avg Cycle Length</div></div>
+    <div class="insight-tile"><div class="i-val" id="pred-cycles-used">—</div><div class="i-label">Cycles Analysed</div></div>
+  </div>
+
+</div>
+
+<!-- SETTINGS -->
+<div id="sec-settings" class="section">
+  <div class="sync-panel" id="syncAnchor">
+    <h3>Sync Across Devices</h3>
+    <p>Bloom uses <strong>JSONBin</strong> for free, real-time sync across any device or browser. One-time setup takes about 60 seconds.</p>
+
+    <div id="syncSetupSteps">
+      <div class="sync-step">
+        <div class="sync-step-num">1</div>
+        <div class="sync-step-body">
+          <div class="sync-step-label">Get a free JSONBin API key</div>
+          <div class="sync-step-sub">Go to <a href="https://jsonbin.io" target="_blank" style="color:var(--terracotta)">jsonbin.io</a> → Sign up free → Dashboard → API Keys → copy your <strong>Secret Key</strong></div>
+        </div>
+      </div>
+      <div class="sync-step">
+        <div class="sync-step-num">2</div>
+        <div class="sync-step-body">
+          <div class="sync-step-label">Paste your API key below</div>
+          <div class="sync-row" style="margin-top:6px">
+            <input type="password" id="syncApiKey" placeholder="$2b$10$…" autocomplete="off" spellcheck="false">
+            <button onclick="initSync()">Save Key</button>
+          </div>
+        </div>
+      </div>
+      <div class="sync-step">
+        <div class="sync-step-num">3</div>
+        <div class="sync-step-body">
+          <div class="sync-step-label">Choose a shared passphrase</div>
+          <div class="sync-step-sub">Both devices must use the same passphrase. It's used to identify your data bin — keep it private.</div>
+          <div class="sync-row" style="margin-top:6px">
+            <input type="text" id="syncCode" placeholder="e.g. sunrise-maple-7" autocomplete="off" spellcheck="false">
+            <button onclick="connectSync()">Connect</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sync-code-display" id="syncCodeDisplay">Connected · bin for <span id="syncCodeLabel"></span></div>
+    <div class="sync-status" id="syncStatus"></div>
+    <div class="sync-btns" id="syncBtns">
+      <button class="primary" onclick="pushSync()">⬆ Push my data</button>
+      <button onclick="pullSync()">⬇ Pull from cloud</button>
+      <button onclick="autoSyncToggle()" id="autoSyncBtn">⏱ Auto-sync: Off</button>
+      <button onclick="disconnectSync()">Disconnect</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cycle Settings</div>
+    <div class="card-sub">Customize predictions</div>
+    <div class="settings-row"><label>Average Cycle Length (days)</label><input type="number" id="set-cycleLen" value="28" min="20" max="45"></div>
+    <div class="settings-row"><label>Luteal Phase Length (days)</label><input type="number" id="set-luteal" value="14" min="10" max="17"></div>
+    <div class="settings-row"><label>Last Period Start Date</label><input type="date" id="set-lastPeriod" style="width:180px"></div>
+    <div class="settings-row"><label>Temperature Unit</label><select id="set-tempUnit"><option value="F">Fahrenheit (°F)</option><option value="C">Celsius (°C)</option></select></div>
+    <button class="btn-save" onclick="saveSettings()" style="margin-top:13px">Save Settings</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Import from Natural Cycles</div>
+    <div class="card-sub">One-time historical data import</div>
+    <p style="font-size:12px;color:var(--mid);line-height:1.65;margin-bottom:14px">Select the <strong>measurements.json</strong> file from your Natural Cycles export. Existing Bloom entries on the same date are kept — imported data only fills in days you haven't logged yet.</p>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <label for="ncImportFile" style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400">
+        <div class="btn-outline" style="cursor:pointer;display:inline-block">📂 Choose measurements.json</div>
+      </label>
+      <input type="file" id="ncImportFile" accept=".json" style="display:none" onchange="runNcImport(this)">
+      <div id="importStatus" style="font-size:12px;color:var(--mid)"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-sub">Export and manage your logs</div>
+    <div class="data-actions">
+      <button class="btn-outline" onclick="exportData()">📤 Export JSON</button>
+      <button class="btn-outline" onclick="exportCSV()">📊 Export CSV</button>
+      <button class="btn-outline danger" onclick="confirmClear()">🗑 Clear All Data</button>
+    </div>
+  </div>
+
+  <div class="card" style="opacity:.68">
+    <div class="card-title">About Bloom</div>
+    <div class="card-sub">Privacy-first fertility tracking</div>
+    <p style="font-size:12px;color:var(--mid);line-height:1.7">All data lives locally on your device. Sync is powered by JSONBin.io — your data is stored in a private bin accessible only with your API key and passphrase. Bloom is a companion tool, not a medical device. Always consult your healthcare provider.</p>
+  </div>
+</div>
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">Are you sure?</h3>
+    <p id="modalDesc">This cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" id="modalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  STORAGE
+// ══════════════════════════════════════
+const STORE_KEY = 'bloom_entries';
+const SETTINGS_KEY = 'bloom_settings';
+const SYNC_KEY = 'bloom_sync_code';
+
+function getEntries() { try { return JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); } catch { return {}; } }
+function saveEntries(d) { localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
+function getSettings() {
+  const def = { cycleLen:28, luteal:14, lastPeriod:'', tempUnit:'F' };
+  try { return { ...def, ...JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}') }; } catch { return def; }
+}
+function saveSettingsData(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let selectedLH = 'none', selectedPeriod = 'none', selectedSymptoms = new Set();
+let calViewDate = new Date(), pendingAction = null;
+let syncCode = localStorage.getItem(SYNC_KEY) || '';
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+function init() {
+  const today = new Date(), todayStr = fmtDate(today);
+  document.getElementById('logDate').value = todayStr;
+  document.getElementById('logDate').addEventListener('change', () => {
+    updateTempHint();
+    const entries = getEntries();
+    const dateStr = document.getElementById('logDate').value;
+    setLogLockState(entries[dateStr] || null);
+  });
+  document.getElementById('todayDateLabel').textContent = today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const entries = getEntries();
+  if (entries[todayStr]) populateForm(entries[todayStr]);
+  setLogLockState(entries[todayStr] || null);
+  updateTempHint();
+
+  const s = getSettings();
+  document.getElementById('set-cycleLen').value   = s.cycleLen;
+  document.getElementById('set-luteal').value     = s.luteal;
+  document.getElementById('set-lastPeriod').value = s.lastPeriod||'';
+  document.getElementById('set-tempUnit').value   = s.tempUnit;
+
+  if (syncCode) { document.getElementById('syncCode').value = syncCode; updateSyncUI(true); }
+
+  updateStatusBar();
+  drawMainChart();
+  renderCalendar();
+  renderHistory();
+  renderInsights(); // keep insights running for internal use
+}
+
+function setLogLockState(entry) {
+  const btn      = document.getElementById('saveBtn');
+  const editLink = document.getElementById('editEntryLink');
+  const card     = document.getElementById('logCard');
+
+  if (entry && entry.timestamp > 0) {
+    // Locked — entry exists and was intentionally saved
+    const t = new Date(entry.timestamp);
+    const timeStr = t.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    btn.textContent = '';
+    btn.innerHTML   = `<span style="font-size:15px">✓</span> Data Logged · ${timeStr}`;
+    btn.classList.add('locked');
+    btn.onclick     = null;
+    card.classList.add('form-locked');
+    editLink.style.display = 'block';
+  } else {
+    // Unlocked — new date or no saved entry
+    btn.innerHTML   = 'Save Today\'s Log';
+    btn.classList.remove('locked');
+    btn.onclick     = saveEntry;
+    card.classList.remove('form-locked');
+    editLink.style.display = 'none';
+  }
+}
+
+function unlockForm() {
+  const btn      = document.getElementById('saveBtn');
+  const editLink = document.getElementById('editEntryLink');
+  const card     = document.getElementById('logCard');
+  btn.innerHTML  = 'Save Today\'s Log';
+  btn.classList.remove('locked');
+  btn.onclick    = saveEntry;
+  card.classList.remove('form-locked');
+  editLink.style.display = 'none';
+}
+
+function populateForm(e) {
+  if (e.temp)  document.getElementById('logTemp').value = e.temp;
+  if (e.cm)    document.getElementById('logCM').value = e.cm;
+  if (e.notes) document.getElementById('logNote').value = e.notes;
+  if (e.lh)    { selectedLH = e.lh; document.querySelectorAll('.lh-option').forEach(el=>el.classList.toggle('selected',el.dataset.val===e.lh)); }
+  if (e.period){ selectedPeriod=e.period; document.querySelectorAll('.period-btn').forEach(el=>el.classList.toggle('active',el.dataset.val===e.period)); }
+  if (e.symptoms) { selectedSymptoms=new Set(e.symptoms); document.querySelectorAll('#symptomBtns .period-btn').forEach(el=>el.classList.toggle('active',selectedSymptoms.has(el.dataset.val))); }
+}
+
+// ══════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════
+const SECS = ['log','cycle','history','predict','settings'];
+function showSection(name) {
+  SECS.forEach(s=>document.getElementById('sec-'+s).classList.toggle('active',s===name));
+  document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',SECS[i]===name));
+  document.getElementById('mainGraphCard').style.display = name==='cycle' ? 'none' : 'block';
+  if (name==='log')     { chartOffset=0; drawMainChart(); }
+  if (name==='cycle')   renderCalendar();
+  if (name==='history') renderHistory();
+  if (name==='predict') { renderPredict(); drawPredictChart(); }
+}
+
+// ══════════════════════════════════════
+//  FORM
+// ══════════════════════════════════════
+function selectLH(el) { selectedLH=el.dataset.val; document.querySelectorAll('.lh-option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); }
+function selectPeriod(el) {
+  const v=el.dataset.val;
+  if (selectedPeriod===v) { selectedPeriod='none'; el.classList.remove('active'); }
+  else { selectedPeriod=v; document.querySelectorAll('.period-btn[data-val]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+}
+function toggleSymptom(el) {
+  const v=el.dataset.val;
+  if (selectedSymptoms.has(v)) { selectedSymptoms.delete(v); el.classList.remove('active'); }
+  else { selectedSymptoms.add(v); el.classList.add('active'); }
+}
+
+// ══════════════════════════════════════
+//  TEMP VARIATION
+// ══════════════════════════════════════
+function getPrevTemp(dateStr) {
+  const entries=getEntries(), d=new Date(dateStr+'T00:00:00');
+  for (let i=1;i<=7;i++) { const p=new Date(d); p.setDate(p.getDate()-i); const ps=fmtDate(p); if (entries[ps]?.temp) return {temp:entries[ps].temp,daysAgo:i}; }
+  return null;
+}
+function getTempVar(cur, dateStr) {
+  const prev=getPrevTemp(dateStr); if (!prev) return null;
+  const diff=Math.round((cur-prev.temp)*100)/100;
+  if (diff===0) return {text:`Same as ${prev.daysAgo===1?'yesterday':`${prev.daysAgo} days ago`} (${prev.temp.toFixed(2)}°)`,dir:'same'};
+  const abs=Math.abs(diff).toFixed(2), dir=diff>0?'higher':'lower', label=prev.daysAgo===1?'yesterday':`${prev.daysAgo} days ago`;
+  return {text:`${abs}° ${dir} than ${label} (${prev.temp.toFixed(2)}°)`,dir};
+}
+function updateTempHint() {
+  const dateStr=document.getElementById('logDate').value, val=parseFloat(document.getElementById('logTemp').value), hint=document.getElementById('tempHint');
+  if (!dateStr||isNaN(val)||val<96||val>100) { hint.textContent=''; return; }
+  const r=getTempVar(val,dateStr); if (!r) { hint.textContent=''; return; }
+  hint.style.color = r.dir==='higher'?'var(--deep-rose)':r.dir==='lower'?'#4d8a62':'var(--light-mid)';
+  hint.textContent = (r.dir==='higher'?'↑':r.dir==='lower'?'↓':'→')+' '+r.text;
+}
+
+// ══════════════════════════════════════
+//  SAVE ENTRY
+// ══════════════════════════════════════
+function saveEntry() {
+  const date=document.getElementById('logDate').value; if (!date) { showToast('Please select a date'); return; }
+  const temp=document.getElementById('logTemp').value, cm=document.getElementById('logCM').value, notes=document.getElementById('logNote').value;
+  const entry={date,lh:selectedLH,period:selectedPeriod,symptoms:[...selectedSymptoms],cm,notes,timestamp:Date.now()};
+  if (temp) entry.temp=parseFloat(temp);
+  const s=getSettings();
+  if (['light','medium','heavy'].includes(selectedPeriod)&&!s.lastPeriod) { s.lastPeriod=date; saveSettingsData(s); document.getElementById('set-lastPeriod').value=date; }
+  const entries=getEntries(); entries[date]=entry; saveEntries(entries);
+  setLogLockState(entry);
+  showToast('✓ Saved for '+fmtDisplayDate(date));
+  updateStatusBar(); drawMainChart(); renderInsights();
+}
+
+// ══════════════════════════════════════
+//  STATUS BAR
+// ══════════════════════════════════════
+function updateStatusBar() {
+  const s=getSettings(), today=fmtDate(new Date()), {cycleDay,phase,icon,title,desc}=getCycleInfo(today,s);
+  document.getElementById('headerCycleDay').textContent=cycleDay||'—';
+  document.getElementById('headerPhase').textContent=phase||'—';
+  document.getElementById('statusIcon').textContent=icon;
+  document.getElementById('statusTitle').textContent=title;
+  document.getElementById('statusDesc').textContent=desc;
+}
+function getCycleInfo(dateStr,s) {
+  if (!s.lastPeriod) return {cycleDay:null,phase:'Unknown',icon:'🌿',title:'Set your last period date',desc:'Go to Settings to get started'};
+  const last=new Date(s.lastPeriod+'T00:00:00'), current=new Date(dateStr+'T00:00:00');
+  const diff=Math.round((current-last)/86400000), cycleDay=(diff%s.cycleLen)+1;
+  const ovDay=s.cycleLen-s.luteal, fertStart=ovDay-5, fertEnd=ovDay+1;
+  let phase,icon,title,desc;
+  if (cycleDay<=5)              { phase='Menstrual'; icon='🌑'; title='Menstrual Phase'; desc=`Day ${cycleDay} of your period.`; }
+  else if (cycleDay<fertStart)  { phase='Follicular'; icon='🌱'; title='Follicular Phase'; desc=`Fertile window in ${fertStart-cycleDay} day${fertStart-cycleDay!==1?'s':''}.`; }
+  else if (cycleDay<=fertEnd)   {
+    const dov=ovDay-cycleDay;
+    if (dov===0) { phase='Ovulation'; icon='⚡'; title='Ovulation Day — Peak Fertility!'; desc='Highest chance of conception today.'; }
+    else { phase='Fertile'; icon='🌸'; title=`Fertile Window — Day ${cycleDay}`; desc=`Estimated ovulation in ${dov} day${dov!==1?'s':''}.`; }
+  } else { phase='Luteal'; icon='🌕'; const dtn=s.cycleLen-cycleDay+1; title='Luteal Phase'; desc=`Next period in ~${dtn} day${dtn!==1?'s':''}.`; }
+  return {cycleDay,phase,icon,title,desc};
+}
+
+// ══════════════════════════════════════
+//  FERTILE WINDOW CALC
+// ══════════════════════════════════════
+function computeFW(s) {
+  if (!s.lastPeriod) return null;
+  const last=new Date(s.lastPeriod+'T00:00:00'), ovDay=s.cycleLen-s.luteal, today=new Date();
+  let cs=new Date(last);
+  for (let c=0;c<6;c++) {
+    const ov=new Date(cs); ov.setDate(ov.getDate()+ovDay);
+    const fs=new Date(ov); fs.setDate(fs.getDate()-5);
+    const fe=new Date(ov); fe.setDate(fe.getDate()+1);
+    const next=new Date(cs); next.setDate(next.getDate()+s.cycleLen);
+    if (fe>=today||c===5) return {fertileStart:fs,fertileEnd:fe,ovulation:ov,cycleStart:new Date(cs)};
+    cs=next;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════
+//  MAIN CHART
+// ══════════════════════════════════════
+let chartOffset = 0; // days offset from today (negative = further into past)
+
+function initChartPan() {
+  const wrap = document.getElementById('graphWrap');
+  if (wrap._panInit) return;
+  wrap._panInit = true;
+
+  let dragStart = null, offsetAtDrag = 0;
+
+  function onStart(clientX) { dragStart = clientX; offsetAtDrag = chartOffset; }
+  function onMove(clientX) {
+    if (dragStart === null) return;
+    const W = wrap.clientWidth || 700;
+    const TOTAL = 31;
+    const pxPerDay = (W - 50) / (TOTAL - 1);
+    const daysDelta = Math.round((clientX - dragStart) / pxPerDay);
+    // Limit: can't go further than ~180 days back, or more than 14 days forward
+    chartOffset = Math.max(-180, Math.min(14, offsetAtDrag - daysDelta));
+    drawMainChart();
+  }
+  function onEnd() { dragStart = null; }
+
+  // Mouse
+  wrap.addEventListener('mousedown',  e => { onStart(e.clientX); e.preventDefault(); });
+  window.addEventListener('mousemove', e => onMove(e.clientX));
+  window.addEventListener('mouseup',   onEnd);
+
+  // Touch
+  wrap.addEventListener('touchstart', e => { onStart(e.touches[0].clientX); }, {passive:true});
+  wrap.addEventListener('touchmove',  e => { onMove(e.touches[0].clientX); e.preventDefault(); }, {passive:false});
+  wrap.addEventListener('touchend',   onEnd);
+}
+
+function drawMainChart() {
+  initChartPan();
+  const canvas=document.getElementById('mainChart'), wrap=document.getElementById('graphWrap');
+  const s=getSettings(), entries=getEntries(), today=new Date(), todayStr=fmtDate(today);
+  const fw=computeFW(s);
+
+  // Update chip — always relative to today regardless of pan
+  const chip=document.getElementById('fertileChip'), dtl=document.getElementById('daysToLabel');
+  if (fw) {
+    const dtf=Math.round((fw.fertileStart-today)/86400000), dov=Math.round((fw.ovulation-today)/86400000);
+    const inF=today>=fw.fertileStart&&today<=fw.fertileEnd, pastFe=today>fw.fertileEnd;
+    if (inF&&dov===0)   { chip.className='fertile-chip peak';       chip.textContent='⚡ Ovulation Day'; dtl.textContent='Peak fertility today'; }
+    else if (inF)       { chip.className='fertile-chip fertile';    chip.textContent='🌸 Fertile'; dtl.textContent=dov>0?`Ovulation in ${dov}d`:'Past predicted ovulation'; }
+    else if (pastFe)    { chip.className='fertile-chip luteal';     chip.textContent='🌕 Luteal Phase'; const dtp=Math.round((new Date(fw.cycleStart.getTime()+s.cycleLen*86400000)-today)/86400000); dtl.textContent=dtp>0?`Period in ~${dtp}d`:'Period expected soon'; }
+    else                { chip.className='fertile-chip follicular'; chip.textContent='🌱 Follicular'; dtl.textContent=dtf>0?`Fertile window in ${dtf}d`:'Fertile window soon'; }
+  } else { chip.className='fertile-chip'; chip.textContent='—'; dtl.textContent='Set last period in Settings'; }
+
+  // Build data: window of 31 days centered on (today + chartOffset)
+  const PAST=25, FUT=5, TOTAL=PAST+FUT+1;
+  const pts=[];
+  for (let i=-PAST;i<=FUT;i++) {
+    const d=new Date(today); d.setDate(d.getDate()+i+chartOffset);
+    const ds=fmtDate(d), e=entries[ds];
+    pts.push({date:ds, d, i, dayOffset:i+chartOffset, day:d.getDate(), month:d.getMonth(),
+              temp:e?.temp??null, lh:e?.lh??null, period:e?.period??null});
+  }
+
+  const W=wrap.clientWidth||700, H=175;
+  canvas.width=W*devicePixelRatio; canvas.height=H*devicePixelRatio;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+  ctx.clearRect(0,0,W,H);
+
+  const pad={l:38,r:12,t:14,b:26};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  const withT=pts.filter(p=>p.temp!==null);
+
+  let minT=97.0, maxT=99.0;
+  if (withT.length) { const ts=withT.map(p=>p.temp); minT=Math.floor((Math.min(...ts)-0.18)*10)/10; maxT=Math.ceil((Math.max(...ts)+0.18)*10)/10; }
+
+  const tx=i=>pad.l+(i/(TOTAL-1))*cW;
+  const ty=t=>pad.t+(1-(t-minT)/(maxT-minT))*cH;
+
+  // ─ FERTILE WINDOW BAND ─
+  if (fw) {
+    const fsi=pts.findIndex(p=>p.date===fmtDate(fw.fertileStart));
+    const fei=pts.findIndex(p=>p.date===fmtDate(fw.fertileEnd));
+    const ovi=pts.findIndex(p=>p.date===fmtDate(fw.ovulation));
+    const xfs=fsi>=0?tx(fsi):fw.fertileStart<pts[0].d?pad.l:W-pad.r;
+    const xfe=fei>=0?tx(fei):fw.fertileEnd>pts[TOTAL-1].d?W-pad.r:pad.l;
+
+    if (xfe>xfs) {
+      const bandW = xfe - xfs;
+      ctx.fillStyle='rgba(100,160,110,0.18)';
+      ctx.fillRect(xfs, pad.t, bandW, cH);
+      ctx.fillStyle='rgba(100,160,110,0.6)';
+      ctx.fillRect(xfs, pad.t, bandW, 3);
+      ctx.strokeStyle='rgba(100,160,110,0.7)'; ctx.lineWidth=1.5; ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(xfs,pad.t); ctx.lineTo(xfs,pad.t+cH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xfe,pad.t); ctx.lineTo(xfe,pad.t+cH); ctx.stroke();
+
+      if (bandW>30) {
+        const lx=xfs+bandW/2, ly=pad.t+18;
+        const labelText=bandW>80?'FERTILE WINDOW':'FERTILE';
+        ctx.font=`600 9px DM Sans,sans-serif`;
+        const tw=ctx.measureText(labelText).width, pr=4;
+        ctx.fillStyle='rgba(80,140,90,0.85)';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(lx-tw/2-pr,ly-10,tw+pr*2,13,3); else ctx.rect(lx-tw/2-pr,ly-10,tw+pr*2,13);
+        ctx.fill();
+        ctx.fillStyle='white'; ctx.textAlign='center'; ctx.fillText(labelText,lx,ly);
+      }
+
+      if (ovi>=0) {
+        const xov=tx(ovi);
+        ctx.strokeStyle='rgba(158,79,59,0.75)'; ctx.lineWidth=2; ctx.setLineDash([3,2]);
+        ctx.beginPath(); ctx.moveTo(xov,pad.t+3); ctx.lineTo(xov,pad.t+cH); ctx.stroke(); ctx.setLineDash([]);
+        ctx.font=`600 9px DM Sans,sans-serif`;
+        const ow=ctx.measureText('OV').width;
+        ctx.fillStyle='rgba(158,79,59,0.85)';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(xov-ow/2-4,pad.t+3,ow+8,13,3); else ctx.rect(xov-ow/2-4,pad.t+3,ow+8,13);
+        ctx.fill();
+        ctx.fillStyle='white'; ctx.textAlign='center'; ctx.fillText('OV',xov,pad.t+13);
+      }
+    }
+  }
+
+  // ─ PERIOD SHADING + LABEL ─
+  const colW=cW/(TOTAL-1);
+  // Find contiguous period runs to label each run once
+  let periodRunStart = null;
+  pts.forEach((p,i)=>{
+    const hasPeriod = p.period && p.period !== 'none';
+    if (hasPeriod) {
+      ctx.fillStyle='rgba(196,122,90,0.15)';
+      ctx.fillRect(tx(i)-colW/2, pad.t, colW, cH);
+      if (periodRunStart===null) periodRunStart=i;
+    }
+    // End of run — draw label + top bar
+    const nextHasPeriod = pts[i+1]?.period && pts[i+1]?.period !== 'none';
+    if (periodRunStart!==null && !nextHasPeriod) {
+      const runEnd = i;
+      const rx1 = tx(periodRunStart)-colW/2, rx2 = tx(runEnd)+colW/2;
+      const runW = rx2-rx1;
+      // Top bar
+      ctx.fillStyle='rgba(196,122,90,0.55)';
+      ctx.fillRect(rx1, pad.t, runW, 3);
+      // Pill label
+      if (runW > 20) {
+        const lx=rx1+runW/2, ly=pad.t+18;
+        const label='PERIOD';
+        ctx.font=`600 9px DM Sans,sans-serif`;
+        const tw=ctx.measureText(label).width, pr=4;
+        ctx.fillStyle='rgba(180,90,60,0.82)';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(lx-tw/2-pr,ly-10,tw+pr*2,13,3); else ctx.rect(lx-tw/2-pr,ly-10,tw+pr*2,13);
+        ctx.fill();
+        ctx.fillStyle='white'; ctx.textAlign='center'; ctx.fillText(label,lx,ly);
+      }
+      periodRunStart=null;
+    }
+  });
+
+  // ─ TODAY LINE ─
+  const ti=pts.findIndex(p=>p.date===todayStr);
+  if (ti>=0) {
+    ctx.strokeStyle='rgba(196,122,90,0.3)'; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+    ctx.beginPath(); ctx.moveTo(tx(ti),pad.t); ctx.lineTo(tx(ti),pad.t+cH); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // ─ GRID + Y AXIS ─
+  const step=(maxT-minT)<=0.7?0.1:0.2;
+  for (let t=minT;t<=maxT+0.001;t=Math.round((t+step)*100)/100) {
+    const y=ty(t); ctx.strokeStyle='rgba(196,122,90,0.08)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#c4a898'; ctx.font=`9px DM Sans,sans-serif`; ctx.textAlign='right'; ctx.fillText(t.toFixed(1),pad.l-4,y+3);
+  }
+
+  // ─ NO DATA MSG ─
+  if (!withT.length) {
+    ctx.fillStyle='rgba(196,168,152,0.65)'; ctx.font=`13px DM Sans,sans-serif`; ctx.textAlign='center';
+    ctx.fillText('Log BBT temperatures to see your chart',W/2,pad.t+cH/2);
+  }
+
+  // ─ COVERLINE (computed from all data, not just visible window) ─
+  const allTemps = Object.values(entries).filter(e=>e.temp).map(e=>e.temp).sort((a,b)=>a-b);
+  if (allTemps.length>=6) {
+    const preOv=allTemps.slice(0,Math.floor(allTemps.length*0.6));
+    const cl=Math.max(...preOv)+0.05;
+    if (cl>=minT&&cl<=maxT) {
+      const cy=ty(cl); ctx.strokeStyle='rgba(196,122,90,0.45)'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.moveTo(pad.l,cy); ctx.lineTo(W-pad.r,cy); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='rgba(196,122,90,0.55)'; ctx.font=`9px DM Sans,sans-serif`; ctx.textAlign='left';
+      ctx.fillText('coverline',pad.l+3,cy-3);
+    }
+  }
+
+  // ─ PROBABILITY CURVE OVERLAY ─
+  // Draw a subtle Gaussian over the chart bottom portion so it doesn't fight the temp line
+  try {
+    const m = buildModel();
+    if (m && m.predictedOvDate && m.lastStart) {
+      const probPts = pts.map((p, i) => {
+        const dayOfCycle = m.lastStart
+          ? Math.round((p.d - new Date(m.lastStart + 'T00:00:00')) / 86400000) + 1
+          : null;
+        if (!dayOfCycle || dayOfCycle < 1) return { i, prob: 0 };
+        const rawProb = m.gaussian(dayOfCycle, m.predictedOvDay, m.effectiveSd);
+        return { i, prob: rawProb };
+      });
+      const maxP = Math.max(...probPts.map(p => p.prob), 0.001);
+      const normPts = probPts.map(p => ({ ...p, norm: p.prob / maxP }));
+
+      // Draw in bottom 28% of chart area so it sits beneath the temp line
+      const probH = cH * 0.28;
+      const probBaseline = pad.t + cH; // bottom of chart
+      const probTop = d => probBaseline - d * probH;
+
+      ctx.beginPath();
+      ctx.moveTo(tx(0), probBaseline);
+      normPts.forEach((p) => ctx.lineTo(tx(p.i), probTop(p.norm)));
+      ctx.lineTo(tx(TOTAL - 1), probBaseline);
+      ctx.closePath();
+      const probGrad = ctx.createLinearGradient(0, probBaseline - probH, 0, probBaseline);
+      probGrad.addColorStop(0, 'rgba(100,160,110,0.28)');
+      probGrad.addColorStop(1, 'rgba(100,160,110,0.04)');
+      ctx.fillStyle = probGrad; ctx.fill();
+
+      // Curve stroke
+      ctx.beginPath();
+      normPts.forEach((p, pi) =>
+        pi === 0 ? ctx.moveTo(tx(p.i), probTop(p.norm)) : ctx.lineTo(tx(p.i), probTop(p.norm))
+      );
+      ctx.strokeStyle = 'rgba(80,140,90,0.5)'; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.stroke();
+    }
+  } catch(e) { /* model not ready yet */ }
+
+  // ─ TEMP LINE ─
+  // Connect all visible points with temp (not just past-only, since we may be panned into history)
+  const visibleWithTemp = pts.filter(p=>p.temp!==null);
+  if (visibleWithTemp.length>=2) {
+    ctx.strokeStyle='rgba(196,122,90,0.85)'; ctx.lineWidth=2.2; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath();
+    visibleWithTemp.forEach((p,pi)=>{ const idx=pts.indexOf(p); pi===0?ctx.moveTo(tx(idx),ty(p.temp)):ctx.lineTo(tx(idx),ty(p.temp)); });
+    ctx.stroke();
+  }
+
+  // ─ DOTS ─
+  pts.forEach((p,i)=>{
+    if (p.temp===null) return;
+    const x=tx(i), y=ty(p.temp), isPeak=p.lh==='peak', isToday=p.date===todayStr;
+    const r=isPeak?5.5:isToday?5:3.5;
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=isPeak?'#9e4f3b':'#c47a5a'; ctx.fill();
+    ctx.strokeStyle='#fff9f4'; ctx.lineWidth=2; ctx.stroke();
+    if (isToday) { ctx.beginPath(); ctx.arc(x,y,r+3.5,0,Math.PI*2); ctx.strokeStyle='rgba(196,122,90,0.35)'; ctx.lineWidth=1.5; ctx.stroke(); }
+  });
+
+  // ─ X LABELS ─
+  const evry=Math.ceil(TOTAL/9);
+  pts.forEach((p,i)=>{
+    if (i%evry!==0&&i!==TOTAL-1) return;
+    const x=tx(i), isToday=p.date===todayStr;
+    ctx.textAlign=i===0?'left':i===TOTAL-1?'right':'center';
+    ctx.fillStyle=isToday?'#c47a5a':'#c4a898';
+    ctx.font=isToday?`bold 9px DM Sans,sans-serif`:`9px DM Sans,sans-serif`;
+    ctx.fillText(isToday?'Today':`${p.d.toLocaleDateString('en-US',{month:'short'})} ${p.day}`, x, H-5);
+  });
+
+  // ─ PAN HINT (show if panned away from today) ─
+  if (chartOffset !== 0) {
+    ctx.fillStyle='rgba(196,122,90,0.5)'; ctx.font=`9px DM Sans,sans-serif`; ctx.textAlign='center';
+    ctx.fillText('← drag to pan →', W/2, H-5);
+  }
+}
+
+// ══════════════════════════════════════
+//  PREDICTIVE MODEL
+// ══════════════════════════════════════
+
+/**
+ * Extract all cycles from logged data.
+ * A cycle = period start date → next period start date.
+ * Returns array of { start, end, length, ovDay, ovMethod, lhPeakDay, bbtShiftDay }
+ */
+function extractCycles() {
+  const entries = getEntries();
+  const periodDays = Object.keys(entries)
+    .filter(d => ['light','medium','heavy'].includes(entries[d].period))
+    .sort();
+
+  if (!periodDays.length) return [];
+
+  // Find period START days (first day of each run)
+  const starts = [];
+  for (let i = 0; i < periodDays.length; i++) {
+    const prev = new Date(periodDays[i] + 'T00:00:00');
+    prev.setDate(prev.getDate() - 1);
+    const prevStr = fmtDate(prev);
+    if (!entries[prevStr] || !['light','medium','heavy'].includes(entries[prevStr].period)) {
+      starts.push(periodDays[i]);
+    }
+  }
+
+  if (starts.length < 2) return [];
+
+  const cycles = [];
+  for (let i = 0; i < starts.length - 1; i++) {
+    const start = new Date(starts[i] + 'T00:00:00');
+    const end   = new Date(starts[i+1] + 'T00:00:00');
+    const length = Math.round((end - start) / 86400000);
+    if (length < 15 || length > 60) continue; // filter outliers
+
+    // Find LH peak within this cycle
+    let lhPeakDay = null;
+    for (let d = 0; d < length; d++) {
+      const dd = new Date(start); dd.setDate(dd.getDate() + d);
+      const e = entries[fmtDate(dd)];
+      if (e?.lh === 'peak') { lhPeakDay = d + 1; break; }
+    }
+
+    // Find BBT thermal shift within this cycle
+    // Shift = 3 consecutive days at least 0.2°F above the pre-ovulatory mean
+    let bbtShiftDay = null;
+    const temps = [];
+    for (let d = 0; d < length; d++) {
+      const dd = new Date(start); dd.setDate(dd.getDate() + d);
+      const e = entries[fmtDate(dd)];
+      temps.push(e?.temp ?? null);
+    }
+    // Pre-ovulatory baseline: first 10 temps with values
+    const preTemps = temps.filter(t=>t!==null).slice(0, 10);
+    if (preTemps.length >= 3) {
+      const baseline = preTemps.reduce((a,b)=>a+b,0) / preTemps.length;
+      const threshold = baseline + 0.2;
+      for (let d = 2; d < temps.length; d++) {
+        if (temps[d]!==null && temps[d-1]!==null && temps[d-2]!==null &&
+            temps[d]>threshold && temps[d-1]>threshold && temps[d-2]>threshold) {
+          // Shift confirmed on day d-2 (first of the three high days), ovulation = day before
+          bbtShiftDay = d - 1; // conservative: ovulation day before shift
+          break;
+        }
+      }
+    }
+
+    // Best ovulation estimate for this cycle
+    let ovDay = null, ovMethod = 'estimated';
+    if (bbtShiftDay !== null) { ovDay = bbtShiftDay; ovMethod = 'bbt'; }
+    else if (lhPeakDay !== null) { ovDay = lhPeakDay; ovMethod = 'lh'; }
+    else { ovDay = Math.round(length * 0.54); ovMethod = 'estimated'; } // ~day 15 of 28
+
+    cycles.push({ start: starts[i], length, ovDay, ovMethod, lhPeakDay, bbtShiftDay });
+  }
+  return cycles;
+}
+
+/**
+ * Compute the predictive model for the current cycle.
+ * Returns { mean, sd, probCurve, confidence, cyclesUsed, todayCycleDay,
+ *           currentCycleStart, lhBoost, bbtConfirmed }
+ */
+function computePrediction() {
+  const cycles = extractCycles();
+  const s = getSettings();
+  const entries = getEntries();
+  const today = new Date();
+
+  // Ovulation day stats from historical cycles
+  const ovDays = cycles.filter(c=>c.ovMethod!=='estimated').map(c=>c.ovDay);
+  const allOvDays = cycles.map(c=>c.ovDay);
+
+  let mean, sd, cyclesUsed;
+  if (ovDays.length >= 2) {
+    mean = ovDays.reduce((a,b)=>a+b,0) / ovDays.length;
+    sd   = Math.sqrt(ovDays.map(d=>(d-mean)**2).reduce((a,b)=>a+b,0) / ovDays.length);
+    cyclesUsed = ovDays.length;
+  } else if (allOvDays.length >= 2) {
+    mean = allOvDays.reduce((a,b)=>a+b,0) / allOvDays.length;
+    sd   = Math.sqrt(allOvDays.map(d=>(d-mean)**2).reduce((a,b)=>a+b,0) / allOvDays.length);
+    cyclesUsed = allOvDays.length;
+  } else {
+    // Fallback: use settings
+    mean = s.cycleLen - s.luteal;
+    sd   = 2.5;
+    cyclesUsed = 0;
+  }
+  sd = Math.max(sd, 1.0); // floor on sd
+
+  // Confidence
+  let confidence = 'low', confidenceScore = 0;
+  if (cyclesUsed >= 6 && sd < 2)  { confidence = 'high';   confidenceScore = 3; }
+  else if (cyclesUsed >= 3 || (cyclesUsed >= 1 && sd < 3)) { confidence = 'medium'; confidenceScore = 2; }
+
+  // Find current cycle start
+  const allStarts = extractCycles().map(c=>c.start).concat(s.lastPeriod ? [s.lastPeriod] : []).sort();
+  const currentCycleStart = allStarts.length ? allStarts[allStarts.length-1] : null;
+  let todayCycleDay = null;
+  if (currentCycleStart) {
+    todayCycleDay = Math.round((today - new Date(currentCycleStart+'T00:00:00')) / 86400000) + 1;
+  }
+
+  // LH signal in current cycle — shift distribution
+  let lhBoost = 0, lhPeakDayThis = null;
+  if (currentCycleStart) {
+    for (let d = 1; d <= (todayCycleDay||40); d++) {
+      const dd = new Date(currentCycleStart+'T00:00:00'); dd.setDate(dd.getDate()+d-1);
+      const e = entries[fmtDate(dd)];
+      if (e?.lh === 'peak') { lhPeakDayThis = d; lhBoost = 3; break; }
+      if (e?.lh === 'high' && !lhPeakDayThis) { lhBoost = 1; }
+    }
+    if (lhPeakDayThis) { mean = (mean + lhPeakDayThis) / 2; sd = Math.max(sd * 0.5, 0.8); confidenceScore = 3; confidence = 'high'; }
+    else if (lhBoost) { sd = Math.max(sd * 0.8, 1); }
+  }
+
+  // BBT confirmation in current cycle
+  let bbtConfirmed = false;
+  if (currentCycleStart && todayCycleDay) {
+    const temps = [];
+    for (let d = 1; d <= todayCycleDay; d++) {
+      const dd = new Date(currentCycleStart+'T00:00:00'); dd.setDate(dd.getDate()+d-1);
+      temps.push(entries[fmtDate(dd)]?.temp ?? null);
+    }
+    const preT = temps.filter(t=>t!==null).slice(0,Math.min(10,Math.floor(mean)-3));
+    if (preT.length >= 3) {
+      const bl = preT.reduce((a,b)=>a+b,0)/preT.length, thr = bl+0.2;
+      for (let d = 2; d < temps.length; d++) {
+        if (temps[d]>thr && temps[d-1]>thr && temps[d-2]>thr) { bbtConfirmed = true; break; }
+      }
+    }
+  }
+
+  // Gaussian probability over cycle days 1–45
+  function gaussian(x, mu, sigma) { return Math.exp(-0.5*((x-mu)/sigma)**2) / (sigma*Math.sqrt(2*Math.PI)); }
+
+  const probCurve = [];
+  let total = 0;
+  for (let d = 1; d <= 45; d++) { const p = gaussian(d, mean, sd); probCurve.push({day:d, p}); total += p; }
+  probCurve.forEach(pt => pt.p = pt.p / total); // normalise
+
+  // Sperm survival boost: conception probability = P(ovulation on day d) * sperm_window
+  // Sperm live ~5 days; egg ~12-24h. Best days: ov-2, ov-1, ov, ov+1
+  const conceptionProb = probCurve.map(pt => {
+    let cp = 0;
+    // Sum P(ovulate on day d) * fertility_factor(day relative to ov)
+    probCurve.forEach(ovPt => {
+      const rel = pt.day - ovPt.day; // how many days before/after ovulation this day is
+      let factor = 0;
+      if (rel === -2) factor = 0.27;
+      else if (rel === -1) factor = 0.33;
+      else if (rel === 0)  factor = 0.15;
+      else if (rel === 1)  factor = 0.05;
+      else if (rel >= -5 && rel < -2) factor = 0.08;
+      cp += ovPt.p * factor;
+    });
+    return { day: pt.day, p: cp };
+  });
+  // Normalise to % of peak
+  const maxCp = Math.max(...conceptionProb.map(p=>p.p));
+  conceptionProb.forEach(pt => pt.pct = maxCp > 0 ? Math.round((pt.p / maxCp) * 100) : 0);
+
+  return { mean: Math.round(mean*10)/10, sd: Math.round(sd*10)/10, probCurve, conceptionProb,
+           confidence, confidenceScore, cyclesUsed, todayCycleDay, currentCycleStart,
+           lhBoost, bbtConfirmed, lhPeakDayThis, cycles };
+}
+
+// ── Render predict tab ──
+function renderPredict() {
+  const pred = computePrediction();
+  const s = getSettings();
+
+  // Confidence badge
+  const badge = document.getElementById('pred-confidence-badge');
+  const configs = {
+    high:   { bg:'rgba(100,160,110,0.18)', color:'#3a7a4a', label:'High confidence' },
+    medium: { bg:'rgba(196,122,90,0.15)',  color:'var(--terracotta)', label:'Medium confidence' },
+    low:    { bg:'rgba(122,95,84,0.1)',    color:'var(--mid)',        label:'Low confidence — log more cycles' }
+  };
+  const cfg = configs[pred.confidence];
+  badge.style.background = cfg.bg; badge.style.color = cfg.color;
+  badge.textContent = cfg.label;
+  document.getElementById('pred-confidence-label').textContent =
+    pred.cyclesUsed ? `Based on ${pred.cyclesUsed} confirmed cycle${pred.cyclesUsed!==1?'s':''}` : 'Using default cycle settings';
+
+  // Headline
+  const headEl = document.getElementById('pred-headline');
+  const subEl  = document.getElementById('pred-subline');
+  if (pred.bbtConfirmed) {
+    headEl.textContent = 'Ovulation confirmed this cycle';
+    subEl.textContent = 'Your BBT shows a sustained thermal shift — ovulation has occurred. The luteal phase has begun.';
+  } else if (pred.lhPeakDayThis) {
+    const ovDate = new Date(pred.currentCycleStart+'T00:00:00');
+    ovDate.setDate(ovDate.getDate() + pred.lhPeakDayThis - 1);
+    headEl.textContent = `LH peak logged · ovulation around ${ovDate.toLocaleDateString('en-US',{month:'long',day:'numeric'})}`;
+    subEl.textContent = 'LH peak shifts the prediction. Egg is typically released 12–36 hours after peak. Watch for a BBT rise in the next 2–3 days to confirm.';
+  } else if (pred.todayCycleDay) {
+    const daysToOv = Math.round(pred.mean) - pred.todayCycleDay;
+    const ovDate = new Date(); ovDate.setDate(ovDate.getDate() + daysToOv);
+    if (daysToOv < 0) {
+      headEl.textContent = `Estimated ovulation ~${Math.abs(daysToOv)} day${Math.abs(daysToOv)!==1?'s':''} ago`;
+      subEl.textContent = `Cycle day ${pred.todayCycleDay}. You're likely in the luteal phase. Watch for your next period or log BBT to confirm.`;
+    } else if (daysToOv === 0) {
+      headEl.textContent = 'Estimated ovulation today';
+      subEl.textContent = 'Based on your cycle history, today is the most likely ovulation day. Log your LH strip to confirm.';
+    } else {
+      headEl.textContent = `Estimated ovulation in ${daysToOv} day${daysToOv!==1?'s':''} · ${ovDate.toLocaleDateString('en-US',{month:'long',day:'numeric'})}`;
+      subEl.textContent = `Cycle day ${pred.todayCycleDay} of ~${Math.round(pred.mean + s.luteal)}. Your fertile window opens in approximately ${Math.max(0,daysToOv-5)} day${Math.max(0,daysToOv-5)!==1?'s':''}.`;
+    }
+  } else {
+    headEl.textContent = 'Set your last period date to begin';
+    subEl.textContent = 'Go to Settings and enter your last period start date.';
+  }
+
+  // Stats tiles
+  document.getElementById('pred-avg-ov').textContent     = pred.cyclesUsed ? `Day ${pred.mean}` : '—';
+  document.getElementById('pred-ov-sd').textContent      = pred.cyclesUsed ? `±${pred.sd}` : '—';
+  document.getElementById('pred-avg-cycle').textContent  = pred.cycles.length >= 2 ? Math.round(pred.cycles.map(c=>c.length).reduce((a,b)=>a+b,0)/pred.cycles.length)+'d' : s.cycleLen+'d';
+  document.getElementById('pred-cycles-used').textContent = pred.cycles.length || '—';
+
+  // Daily conception probability table (show peak ±7 days only)
+  const peakDay = Math.round(pred.mean);
+  const showDays = pred.conceptionProb.filter(pt => pt.day >= Math.max(1,peakDay-6) && pt.day <= peakDay+2);
+  const tableEl = document.getElementById('pred-daily-table');
+  if (!pred.currentCycleStart || !pred.todayCycleDay) {
+    tableEl.innerHTML = '<div class="empty" style="padding:20px 0"><div class="empty-sub">Set last period date in Settings</div></div>';
+  } else {
+    tableEl.innerHTML = showDays.map(pt => {
+      const date = new Date(pred.currentCycleStart+'T00:00:00');
+      date.setDate(date.getDate() + pt.day - 1);
+      const isToday = pt.day === pred.todayCycleDay;
+      const isPast  = pt.day < pred.todayCycleDay;
+      const barColor = pt.pct >= 80 ? 'rgba(158,79,59,0.75)' : pt.pct >= 50 ? 'rgba(100,160,110,0.75)' : 'rgba(196,122,90,0.4)';
+      const dayLabel = isToday ? 'Today' : isPast ? 'Past' : pt.day === peakDay ? 'Peak day' : '';
+      return `<div class="pred-day-row" style="${isToday?'background:rgba(196,122,90,0.04);border-radius:8px;margin:0 -4px;padding:8px 4px':''}">
+        <div class="pred-day-date">${date.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+        <div class="pred-day-bar-wrap"><div class="pred-day-bar" style="width:${pt.pct}%;background:${barColor};opacity:${isPast?0.45:1}"></div></div>
+        <div class="pred-day-pct" style="color:${barColor}">${pt.pct}%</div>
+        <div class="pred-day-label">${dayLabel}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Past cycles retrospective
+  const pastEl = document.getElementById('pred-past-cycles');
+  if (!pred.cycles.length) {
+    pastEl.innerHTML = '<div class="empty" style="padding:20px 0"><div class="empty-sub">Need at least 2 period start dates to analyse past cycles</div></div>';
+  } else {
+    const recent = pred.cycles.slice(-8).reverse();
+    pastEl.innerHTML = recent.map(c => {
+      const startDate = new Date(c.start+'T00:00:00');
+      const badgeCls  = c.ovMethod==='bbt' ? 'badge-confirmed' : c.ovMethod==='lh' ? 'badge-lh' : 'badge-estimated';
+      const badgeTxt  = c.ovMethod==='bbt' ? 'BBT confirmed' : c.ovMethod==='lh' ? 'LH peak' : 'Estimated';
+      const ovDate    = new Date(startDate); ovDate.setDate(ovDate.getDate()+c.ovDay-1);
+      const detail    = `${c.length}-day cycle · ovulation ~day ${c.ovDay} (${ovDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})})`;
+      return `<div class="pred-past-row">
+        <div class="pred-past-cycle">${startDate.toLocaleDateString('en-US',{month:'short',year:'2-digit'})}</div>
+        <div class="pred-past-detail">${detail}</div>
+        <div class="pred-past-badge ${badgeCls}">${badgeTxt}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ── Predict chart (probability bell curve) ──
+function drawPredictChart() {
+  const canvas = document.getElementById('predChart');
+  const wrap   = canvas.parentElement;
+  const pred   = computePrediction();
+
+  const W = wrap.clientWidth || 700, H = 160;
+  canvas.width = W * devicePixelRatio; canvas.height = H * devicePixelRatio;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0,0,W,H);
+
+  const pad = {l:14, r:14, t:20, b:28};
+  const cW = W-pad.l-pad.r, cH = H-pad.t-pad.b;
+
+  const peakDay = Math.round(pred.mean);
+  const showStart = Math.max(1, peakDay-10), showEnd = Math.min(45, peakDay+8);
+  const days = pred.probCurve.filter(pt=>pt.day>=showStart&&pt.day<=showEnd);
+  if (!days.length) return;
+
+  const maxP = Math.max(...days.map(d=>d.p));
+  const tx = day => pad.l + ((day-showStart)/(showEnd-showStart))*cW;
+  const ty = p   => pad.t + (1-p/maxP)*cH;
+
+  // ── Fertile window shading (ov-5 to ov+1) ──
+  const fxs = tx(Math.max(showStart,peakDay-5));
+  const fxe = tx(Math.min(showEnd,peakDay+1));
+  ctx.fillStyle = 'rgba(100,160,110,0.15)';
+  ctx.fillRect(fxs, pad.t, fxe-fxs, cH);
+  ctx.fillStyle = 'rgba(100,160,110,0.55)';
+  ctx.fillRect(fxs, pad.t, fxe-fxs, 3);
+
+  // ── Probability curve fill ──
+  ctx.beginPath();
+  days.forEach((pt,i) => {
+    const x=tx(pt.day), y=ty(pt.p);
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.lineTo(tx(days[days.length-1].day), pad.t+cH);
+  ctx.lineTo(tx(days[0].day), pad.t+cH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+  grad.addColorStop(0,'rgba(100,160,110,0.55)');
+  grad.addColorStop(1,'rgba(100,160,110,0.04)');
+  ctx.fillStyle = grad; ctx.fill();
+
+  // ── Curve line ──
+  ctx.beginPath();
+  days.forEach((pt,i) => { const x=tx(pt.day),y=ty(pt.p); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.strokeStyle='rgba(80,140,90,0.8)'; ctx.lineWidth=2.2; ctx.lineJoin='round'; ctx.stroke();
+
+  // ── Today marker ──
+  if (pred.todayCycleDay && pred.todayCycleDay>=showStart && pred.todayCycleDay<=showEnd) {
+    const xt = tx(pred.todayCycleDay);
+    ctx.strokeStyle='rgba(196,122,90,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(xt,pad.t); ctx.lineTo(xt,pad.t+cH); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(196,122,90,0.8)'; ctx.font=`bold 9px DM Sans,sans-serif`; ctx.textAlign='center';
+    ctx.fillText('Today',xt,pad.t-4);
+  }
+
+  // ── LH peak marker ──
+  if (pred.lhPeakDayThis && pred.lhPeakDayThis>=showStart && pred.lhPeakDayThis<=showEnd) {
+    const xl = tx(pred.lhPeakDayThis);
+    ctx.strokeStyle='rgba(158,79,59,0.7)'; ctx.lineWidth=2; ctx.setLineDash([2,3]);
+    ctx.beginPath(); ctx.moveTo(xl,pad.t); ctx.lineTo(xl,pad.t+cH); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#9e4f3b'; ctx.font=`600 9px DM Sans,sans-serif`; ctx.textAlign='center';
+    ctx.fillText('LH Peak',xl,pad.t-4);
+  }
+
+  // ── OV peak marker ──
+  if (peakDay>=showStart && peakDay<=showEnd) {
+    const xov = tx(peakDay);
+    const peakPt = days.find(d=>d.day===peakDay);
+    if (peakPt) {
+      ctx.beginPath(); ctx.arc(xov, ty(peakPt.p), 5, 0, Math.PI*2);
+      ctx.fillStyle='rgba(80,140,90,0.9)'; ctx.fill();
+      ctx.strokeStyle='white'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+  }
+
+  // ── X axis labels ──
+  const labelEvery = Math.ceil(days.length / 7);
+  days.forEach((pt,i) => {
+    if (i%labelEvery!==0 && i!==days.length-1) return;
+    ctx.fillStyle = pt.day===pred.todayCycleDay ? '#c47a5a' : '#c4a898';
+    ctx.font = `9px DM Sans,sans-serif`; ctx.textAlign='center';
+    ctx.fillText(`Day ${pt.day}`, tx(pt.day), H-5);
+  });
+}
+
+// ══════════════════════════════════════
+//  CALENDAR
+// ══════════════════════════════════════
+function renderCalendar() {
+  const s=getSettings(), entries=getEntries(), today=new Date(), todayStr=fmtDate(today);
+  const year=calViewDate.getFullYear(), month=calViewDate.getMonth(), fw=computeFW(s);
+  document.getElementById('calMonthLabel').textContent=calViewDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const grid=document.getElementById('calGrid');
+  while (grid.children.length>7) grid.removeChild(grid.lastChild);
+  const first=new Date(year,month,1).getDay(), dim=new Date(year,month+1,0).getDate();
+  for (let i=0;i<first;i++) grid.appendChild(document.createElement('div'));
+  for (let d=1;d<=dim;d++) {
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const e=entries[ds], dd=new Date(year,month,d), isFuture=dd>today;
+    const el=document.createElement('div'); el.className='cycle-day';
+    if (ds===todayStr)                    el.classList.add('is-today');
+    if (isFuture)                         el.classList.add('future');
+    if (e?.period&&e.period!=='none')     el.classList.add('is-period');
+    if (e?.lh==='peak')                   el.classList.add('is-peak');
+    else if (e?.lh==='high')              el.classList.add('is-fertile');
+    if (fw&&dd>=fw.fertileStart&&dd<=fw.fertileEnd&&!el.classList.contains('is-peak')&&!el.classList.contains('is-period')) el.classList.add('is-fertile');
+    const num=document.createElement('div'); num.className='day-num'; num.textContent=d; el.appendChild(num);
+    if (e) {
+      const row=document.createElement('div'); row.className='day-dots';
+      if (e.temp) { const dot=document.createElement('div'); dot.className='dd'; dot.style.background='var(--terracotta)'; row.appendChild(dot); }
+      if (e.lh&&e.lh!=='none') { const dot=document.createElement('div'); dot.className='dd'; dot.style.background=e.lh==='peak'?'var(--deep-rose)':'var(--sage)'; row.appendChild(dot); }
+      el.appendChild(row);
+    }
+    el.onclick=()=>jumpToLog(ds); grid.appendChild(el);
+  }
+}
+function prevMonth() { calViewDate.setMonth(calViewDate.getMonth()-1); renderCalendar(); }
+function nextMonth() { calViewDate.setMonth(calViewDate.getMonth()+1); renderCalendar(); }
+function jumpToLog(dateStr) {
+  document.getElementById('logDate').value=dateStr;
+  selectedLH='none'; selectedPeriod='none'; selectedSymptoms=new Set();
+  ['logTemp','logCM','logNote'].forEach(id=>document.getElementById(id).value='');
+  document.querySelectorAll('.lh-option').forEach(el=>el.classList.remove('selected'));
+  document.querySelectorAll('.period-btn').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('#symptomBtns .period-btn').forEach(el=>el.classList.remove('active'));
+  document.querySelector('.lh-option[data-val="none"]').classList.add('selected');
+  document.querySelector('.period-btn[data-val="none"]').classList.add('active');
+  const entries=getEntries(); if (entries[dateStr]) populateForm(entries[dateStr]);
+  setLogLockState(entries[dateStr] || null);
+  updateTempHint(); showSection('log');
+}
+
+// ══════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════
+function renderHistory() {
+  const entries=getEntries(), keys=Object.keys(entries).sort((a,b)=>b.localeCompare(a));
+  const list=document.getElementById('historyList');
+  document.getElementById('historyCount').textContent=`${keys.length} entr${keys.length===1?'y':'ies'}`;
+  if (!keys.length) { list.innerHTML=`<div class="empty"><div class="empty-icon">🌱</div><div class="empty-text">No entries yet</div><div class="empty-sub">Start logging to see your history here</div></div>`; return; }
+  list.innerHTML=keys.map(ds=>{
+    const e=entries[ds], d=new Date(ds+'T00:00:00'), day=d.getDate(), mon=d.toLocaleDateString('en-US',{month:'short'});
+    const tags=[];
+    if (e.period&&e.period!=='none') tags.push(`<span class="tag tag-period">🩸 ${cap(e.period)}</span>`);
+    if (e.lh&&e.lh!=='none') { const ic={low:'〇',high:'◉',peak:'⚡'}; tags.push(`<span class="tag tag-lh-${e.lh}">${ic[e.lh]||''} LH ${cap(e.lh)}</span>`); }
+    if (e.temp) {
+      const vr=getTempVar(e.temp,ds); let vh='';
+      if (vr) { const ar=vr.dir==='higher'?'↑':vr.dir==='lower'?'↓':'→', co=vr.dir==='higher'?'var(--deep-rose)':vr.dir==='lower'?'#4d8a62':'var(--light-mid)', dl=vr.text.split(' ').slice(0,2).join(' '); vh=` <span style="font-size:9px;color:${co};font-weight:600">${ar} ${dl}</span>`; }
+      tags.push(`<span class="tag tag-temp">🌡 ${e.temp.toFixed(2)}°${vh}</span>`);
+    }
+    if (e.cm) tags.push(`<span class="tag tag-lh-none">💧 ${cap(e.cm)}</span>`);
+    if (e.symptoms?.length) e.symptoms.forEach(sym=>tags.push(`<span class="tag tag-lh-none">${cap(sym.replace(/-/g,' '))}</span>`));
+    return `<div class="log-entry"><div class="log-date-col"><div class="ld-day">${day}</div><div class="ld-mon">${mon}</div></div><div class="log-data"><div class="log-tags">${tags.join('')||'<span style="color:var(--blush);font-size:12px">No data</span>'}</div>${e.notes?`<div class="log-note">"${e.notes}"</div>`:''}</div><button class="delete-btn" onclick="confirmDelete('${ds}')">✕</button></div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  PREDICTIVE MODEL
+// ══════════════════════════════════════
+
+// Sperm and egg viability relative to ovulation day (day 0)
+// Source: standard fertile window biology
+const CONCEPTION_PROB = {
+  '-5': 0.04, '-4': 0.08, '-3': 0.15, '-2': 0.22,
+  '-1': 0.28, '0': 0.33, '1': 0.10, '2': 0.02
+};
+
+function buildModel() {
+  const entries  = getEntries();
+  const s        = getSettings();
+  const allDates = Object.keys(entries).sort();
+
+  // ── 1. Extract cycle boundaries from period data ──
+  // A cycle starts on the first day of a period (prev day has no period)
+  const cycleStarts = [];
+  for (let i = 0; i < allDates.length; i++) {
+    const d   = allDates[i];
+    const e   = entries[d];
+    const isPeriod = ['light','medium','heavy'].includes(e.period);
+    if (!isPeriod) continue;
+    const prev = new Date(d + 'T00:00:00');
+    prev.setDate(prev.getDate() - 1);
+    const prevE = entries[fmtDate(prev)];
+    const prevIsPeriod = prevE && ['light','medium','heavy'].includes(prevE.period);
+    if (!prevIsPeriod) cycleStarts.push(d);
+  }
+
+  // ── 2. Compute cycle lengths ──
+  const cycleLengths = [];
+  for (let i = 1; i < cycleStarts.length; i++) {
+    const a = new Date(cycleStarts[i-1] + 'T00:00:00');
+    const b = new Date(cycleStarts[i]   + 'T00:00:00');
+    const len = Math.round((b - a) / 86400000);
+    if (len >= 18 && len <= 60) cycleLengths.push(len); // sanity bounds
+  }
+
+  const avgCycle = cycleLengths.length
+    ? cycleLengths.reduce((a,b) => a+b, 0) / cycleLengths.length
+    : s.cycleLen;
+  const sdCycle = cycleLengths.length >= 2
+    ? Math.sqrt(cycleLengths.map(l => (l-avgCycle)**2).reduce((a,b)=>a+b,0) / cycleLengths.length)
+    : 3.0;
+
+  // ── 3. Detect confirmed ovulation days via BBT thermal shift ──
+  // For each cycle: find coverline (mean of first 10 temps), then first day
+  // of 3+ consecutive readings ≥0.2°F above it
+  const confirmedOvulations = []; // {cycleStart, ovDay (day of cycle), method}
+
+  for (let ci = 0; ci < cycleStarts.length; ci++) {
+    const start = new Date(cycleStarts[ci] + 'T00:00:00');
+    const end   = ci + 1 < cycleStarts.length
+      ? new Date(cycleStarts[ci+1] + 'T00:00:00')
+      : new Date(); // current cycle ends today
+
+    // Gather temps for this cycle
+    const cycleTemps = [];
+    const d = new Date(start);
+    while (d < end) {
+      const ds = fmtDate(d);
+      const e  = entries[ds];
+      if (e?.temp) cycleTemps.push({ day: cycleTemps.length + 1, date: ds, temp: e.temp, lh: e.lh });
+      d.setDate(d.getDate() + 1);
+    }
+
+    if (cycleTemps.length < 6) continue;
+
+    // Check for LH peak first (most reliable anchor)
+    const lhPeak = cycleTemps.find(t => t.lh === 'peak');
+    if (lhPeak) {
+      confirmedOvulations.push({
+        cycleStart: cycleStarts[ci],
+        ovDay: lhPeak.day,
+        ovDate: lhPeak.date,
+        method: 'lh',
+        temps: cycleTemps
+      });
+      continue;
+    }
+
+    // BBT shift detection
+    const preOvTemps = cycleTemps.slice(0, Math.min(10, Math.floor(cycleTemps.length * 0.5)));
+    if (preOvTemps.length < 3) continue;
+    const coverline = preOvTemps.reduce((a,b) => a + b.temp, 0) / preOvTemps.length + 0.05;
+
+    for (let t = 3; t < cycleTemps.length; t++) {
+      const window3 = cycleTemps.slice(t-3, t);
+      if (window3.every(p => p.temp >= coverline + 0.15)) {
+        confirmedOvulations.push({
+          cycleStart: cycleStarts[ci],
+          ovDay: cycleTemps[t-3].day, // first day of the shift
+          ovDate: cycleTemps[t-3].date,
+          method: 'bbt',
+          temps: cycleTemps
+        });
+        break;
+      }
+    }
+  }
+
+  // ── 4. Build personal ovulation day distribution ──
+  // ovDay = day of cycle when ovulation occurred
+  const ovDays = confirmedOvulations.map(c => c.ovDay);
+  const avgOvDay = ovDays.length
+    ? ovDays.reduce((a,b) => a+b, 0) / ovDays.length
+    : avgCycle - s.luteal;
+  const sdOvDay = ovDays.length >= 2
+    ? Math.sqrt(ovDays.map(d => (d - avgOvDay)**2).reduce((a,b) => a+b, 0) / ovDays.length)
+    : sdCycle * 0.6;
+
+  // ── 5. Current cycle prediction ──
+  const lastStart = cycleStarts.length ? cycleStarts[cycleStarts.length - 1] : s.lastPeriod;
+  const today     = new Date();
+  const currentCycleDay = lastStart
+    ? Math.round((today - new Date(lastStart + 'T00:00:00')) / 86400000) + 1
+    : null;
+
+  // Check if current cycle has a confirmed ovulation (LH peak or BBT shift already detected)
+  const currentConfirmed = confirmedOvulations.find(c => c.cycleStart === lastStart);
+
+  // Predicted ovulation date
+  let predictedOvDay   = Math.round(avgOvDay);
+  let predMethod       = 'history';
+  let predAnchoredDate = null;
+
+  if (currentConfirmed) {
+    predictedOvDay   = currentConfirmed.ovDay;
+    predMethod       = currentConfirmed.method;
+    predAnchoredDate = currentConfirmed.ovDate;
+  } else if (lastStart) {
+    // Look for any LH high/peak in current cycle to update estimate
+    const d = new Date(lastStart + 'T00:00:00');
+    while (d <= today) {
+      const ds = fmtDate(d);
+      const e  = entries[ds];
+      if (e?.lh === 'peak') {
+        const dayNum = Math.round((d - new Date(lastStart + 'T00:00:00')) / 86400000) + 1;
+        predictedOvDay   = dayNum;
+        predMethod       = 'lh';
+        predAnchoredDate = ds;
+        break;
+      } else if (e?.lh === 'high' && predMethod === 'history') {
+        // High LH pulls the prediction 1-2 days later
+        const dayNum = Math.round((d - new Date(lastStart + 'T00:00:00')) / 86400000) + 1;
+        predictedOvDay = Math.max(predictedOvDay, dayNum + 1);
+        predMethod = 'lh_high';
+      }
+      d.setDate(d.getDate() + 1);
+    }
+  }
+
+  // Predicted ovulation date
+  let predictedOvDate = null;
+  if (lastStart) {
+    predictedOvDate = new Date(lastStart + 'T00:00:00');
+    predictedOvDate.setDate(predictedOvDate.getDate() + predictedOvDay - 1);
+  }
+
+  // ── 6. Confidence rating ──
+  let confidence, confLabel, confColor;
+  const confirmedCount = confirmedOvulations.length;
+  if (predMethod === 'lh' || predMethod === 'bbt') {
+    confidence = 'high'; confLabel = 'High Confidence'; confColor = 'rgba(100,160,110,0.15)';
+  } else if (confirmedCount >= 3 || predMethod === 'lh_high') {
+    confidence = 'medium'; confLabel = 'Medium Confidence'; confColor = 'rgba(196,180,90,0.15)';
+  } else {
+    confidence = 'low'; confLabel = 'Low Confidence'; confColor = 'rgba(196,122,90,0.12)';
+  }
+
+  // ── 7. Gaussian probability curve over cycle days ──
+  // P(ovulation on day d) ~ N(avgOvDay, sdOvDay)
+  function gaussian(x, mu, sigma) {
+    return Math.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * Math.sqrt(2 * Math.PI));
+  }
+
+  // Effective sd: narrow if anchored by LH/BBT, wider if history only
+  const effectiveSd = predMethod === 'lh' ? 0.8
+    : predMethod === 'bbt' ? 1.2
+    : predMethod === 'lh_high' ? 1.8
+    : Math.max(sdOvDay, 1.5);
+
+  // ── 8. Conception probability per upcoming day ──
+  const conceptionDays = [];
+  if (predictedOvDate && lastStart) {
+    for (let offset = -6; offset <= 3; offset++) {
+      const d  = new Date(predictedOvDate); d.setDate(d.getDate() + offset);
+      const ds = fmtDate(d);
+      const e  = entries[ds];
+      const viability = CONCEPTION_PROB[String(offset)] || 0;
+      // Modulate by how certain we are about ovulation day
+      const certaintyFactor = predMethod === 'lh' ? 1.0
+        : predMethod === 'bbt' ? 0.90
+        : predMethod === 'lh_high' ? 0.75
+        : 0.60;
+      const prob = Math.round(viability * certaintyFactor * 100);
+      conceptionDays.push({ date: d, dateStr: ds, offset, prob, hasEntry: !!e });
+    }
+  }
+
+  return {
+    // Cycle stats
+    avgCycle: Math.round(avgCycle * 10) / 10,
+    sdCycle:  Math.round(sdCycle  * 10) / 10,
+    cycleLengths,
+    cycleCount: cycleStarts.length,
+    cycleStarts,
+
+    // Ovulation model
+    avgOvDay:   Math.round(avgOvDay * 10) / 10,
+    sdOvDay:    Math.round(sdOvDay  * 10) / 10,
+    ovDays,
+    confirmedOvulations,
+
+    // Current cycle
+    lastStart,
+    currentCycleDay,
+    predictedOvDay,
+    predictedOvDate,
+    predMethod,
+    predAnchoredDate,
+    currentConfirmed,
+
+    // Confidence
+    confidence, confLabel, confColor,
+
+    // Chart helpers
+    gaussian, effectiveSd,
+
+    // Conception
+    conceptionDays
+  };
+}
+
+// ── Render predict tab ──
+function renderPredict() {
+  const m = buildModel();
+  const today = new Date(), todayStr = fmtDate(today);
+
+  // ── Headline card ──
+  const badge = document.getElementById('pred-confidence-badge');
+  badge.textContent = m.confLabel;
+  badge.style.background = m.confColor;
+  badge.style.color = m.confidence === 'high' ? '#3a7a4a' : m.confidence === 'medium' ? '#7a6a20' : 'var(--mid)';
+
+  const confSub = {
+    high: m.predMethod === 'lh' ? 'Anchored by LH peak — most accurate' : 'Confirmed by BBT thermal shift',
+    medium: m.predMethod === 'lh_high' ? 'LH strip shows high — peak expected soon' : `Based on ${m.confirmedOvulations.length} confirmed cycles`,
+    low: `Based on cycle length history (${m.cycleCount} cycles) — log daily to improve`
+  };
+  document.getElementById('pred-confidence-label').textContent = confSub[m.confidence];
+
+  if (m.predictedOvDate) {
+    const daysAway = Math.round((m.predictedOvDate - today) / 86400000);
+    const dateStr  = m.predictedOvDate.toLocaleDateString('en-US', {month:'long', day:'numeric'});
+    let headline = '', subline = '';
+
+    if (m.currentConfirmed?.method === 'lh' && daysAway <= 0) {
+      headline = `Ovulation was ${Math.abs(daysAway) === 0 ? 'today' : Math.abs(daysAway) + ' days ago'}`;
+      subline  = `LH peak confirmed on ${fmtDisplayDate(m.predAnchoredDate)}. Luteal phase now in progress.`;
+    } else if (m.currentConfirmed?.method === 'bbt') {
+      headline = `Ovulation confirmed — ${dateStr}`;
+      subline  = `BBT thermal shift detected. You're ${Math.abs(daysAway)} days post-ovulation.`;
+    } else if (daysAway > 0) {
+      headline = `Predicted ovulation: ${dateStr}`;
+      subline  = `In ${daysAway} day${daysAway !== 1 ? 's' : ''} · cycle day ${m.predictedOvDay} of ~${Math.round(m.avgCycle)}`;
+    } else if (daysAway === 0) {
+      headline = '⚡ Predicted ovulation: Today';
+      subline  = `Cycle day ${m.currentCycleDay} — log your LH strip and temp today`;
+    } else {
+      headline = `Ovulation likely passed — ${dateStr}`;
+      subline  = `Luteal phase in progress. Next period expected in ~${Math.round(m.avgCycle) - (m.currentCycleDay || 0)} days.`;
+    }
+
+    document.getElementById('pred-headline').textContent = headline;
+    document.getElementById('pred-subline').textContent  = subline;
+  } else {
+    document.getElementById('pred-headline').textContent = 'Not enough data yet';
+    document.getElementById('pred-subline').textContent  = 'Set your last period date in Settings to get started.';
+  }
+
+  // ── Daily conception probability table ──
+  const table = document.getElementById('pred-daily-table');
+  if (m.conceptionDays.length) {
+    const maxProb = Math.max(...m.conceptionDays.map(d => d.prob), 1);
+    table.innerHTML = m.conceptionDays.map(d => {
+      const isToday  = d.dateStr === todayStr;
+      const isPast   = d.date < today && !isToday;
+      const barColor = d.prob >= 25 ? '#3a7a4a' : d.prob >= 15 ? '#c47a5a' : '#c4a898';
+      const label    = d.offset === 0 ? 'Ovulation' : d.offset === -1 ? 'Peak day' : d.offset < 0 ? `${Math.abs(d.offset)}d before` : `${d.offset}d after`;
+      const dateDisp = d.date.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+      return `<div class="pred-day-row" style="${isToday ? 'background:rgba(196,122,90,0.06);border-radius:8px;margin:0 -4px;padding:8px 4px;' : ''}${isPast ? 'opacity:0.55;' : ''}">
+        <div class="pred-day-date">${dateDisp}</div>
+        <div class="pred-day-bar-wrap"><div class="pred-day-bar" style="width:${(d.prob/maxProb)*100}%;background:${barColor}"></div></div>
+        <div class="pred-day-pct" style="color:${barColor}">${d.prob}%</div>
+        <div class="pred-day-label">${label}</div>
+      </div>`;
+    }).join('');
+  } else {
+    table.innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Set your last period date</div><div class="empty-sub">in Settings to see predictions</div></div>`;
+  }
+
+  // ── Past cycles retrospective ──
+  const pastEl = document.getElementById('pred-past-cycles');
+  if (m.confirmedOvulations.length) {
+    pastEl.innerHTML = m.confirmedOvulations.slice().reverse().slice(0, 8).map(c => {
+      const methodLabel = c.method === 'lh' ? 'LH Peak' : 'BBT Shift';
+      const methodColor = c.method === 'lh' ? 'rgba(158,79,59,0.15)' : 'rgba(196,122,90,0.15)';
+      const methodText  = c.method === 'lh' ? 'var(--deep-rose)' : 'var(--terracotta)';
+      const startDisp   = new Date(c.cycleStart + 'T00:00:00').toLocaleDateString('en-US', {month:'short', year:'numeric'});
+      const ovDisp      = new Date(c.ovDate    + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'});
+      return `<div class="pred-past-row">
+        <div class="pred-past-cycle">${startDisp}</div>
+        <div class="pred-past-detail">Ovulation cycle day <strong>${c.ovDay}</strong> · ${ovDisp}</div>
+        <div class="pred-past-badge" style="background:${methodColor};color:${methodText}">${methodLabel}</div>
+      </div>`;
+    }).join('');
+  } else {
+    pastEl.innerHTML = `<div style="font-size:12px;color:var(--light-mid);padding:12px 0">No confirmed ovulation days yet — log daily BBT temps and LH strips to build history.</div>`;
+  }
+
+  // ── Stats tiles ──
+  document.getElementById('pred-avg-ov').textContent    = m.avgOvDay    ? `Day ${Math.round(m.avgOvDay)}` : '—';
+  document.getElementById('pred-ov-sd').textContent     = m.sdOvDay     ? `±${m.sdOvDay.toFixed(1)}`      : '—';
+  document.getElementById('pred-avg-cycle').textContent = m.avgCycle    ? `${m.avgCycle}d`                 : '—';
+  document.getElementById('pred-cycles-used').textContent = m.cycleCount || '—';
+
+  // Redraw the chart
+  drawPredictChart(m);
+}
+
+// ── Probability curve chart ──
+function drawPredictChart(m) {
+  const canvas = document.getElementById('predChart');
+  const wrap   = canvas.parentElement;
+  if (!m || !m.lastStart) {
+    const W=wrap.clientWidth||700, H=120;
+    canvas.width=W*devicePixelRatio; canvas.height=H*devicePixelRatio;
+    canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    const ctx=canvas.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+    ctx.fillStyle='rgba(196,168,152,0.5)'; ctx.font=`13px DM Sans,sans-serif`; ctx.textAlign='center';
+    ctx.fillText('Set last period date to see prediction curve', W/2, H/2);
+    return;
+  }
+
+  // Show cycle days 1 through avgCycle+5
+  const maxDay = Math.round(m.avgCycle) + 5;
+  const today  = new Date(), todayStr = fmtDate(today);
+  const lastStartD = new Date(m.lastStart + 'T00:00:00');
+
+  const W = wrap.clientWidth || 700, H = 150;
+  canvas.width=W*devicePixelRatio; canvas.height=H*devicePixelRatio;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = {l:32, r:12, t:20, b:28};
+  const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
+
+  const tx = day => pad.l + ((day - 1) / (maxDay - 1)) * cW;
+  const ty = p   => pad.t + (1 - p) * cH;
+
+  // Build probability values for each day
+  const days = [], probs = [];
+  for (let d = 1; d <= maxDay; d++) {
+    days.push(d);
+    probs.push(m.gaussian(d, m.predictedOvDay, m.effectiveSd));
+  }
+  const maxProb = Math.max(...probs);
+  const normProbs = probs.map(p => p / maxProb); // normalize 0-1
+
+  // ── Fertile window fill ──
+  const fStart = Math.max(1, m.predictedOvDay - 5);
+  const fEnd   = Math.min(maxDay, m.predictedOvDay + 1);
+  ctx.fillStyle = 'rgba(100,160,110,0.12)';
+  ctx.fillRect(tx(fStart), pad.t, tx(fEnd) - tx(fStart), cH);
+  ctx.fillStyle = 'rgba(100,160,110,0.55)';
+  ctx.fillRect(tx(fStart), pad.t, tx(fEnd) - tx(fStart), 3);
+
+  // ── Grid ──
+  ctx.strokeStyle = 'rgba(196,122,90,0.07)'; ctx.lineWidth = 1;
+  [0.25, 0.5, 0.75, 1.0].forEach(frac => {
+    const y = ty(frac);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+  });
+
+  // ── Probability curve (filled) ──
+  ctx.beginPath();
+  ctx.moveTo(tx(1), ty(0));
+  days.forEach((d, i) => ctx.lineTo(tx(d), ty(normProbs[i])));
+  ctx.lineTo(tx(maxDay), ty(0));
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + cH);
+  grad.addColorStop(0, 'rgba(100,160,110,0.45)');
+  grad.addColorStop(1, 'rgba(100,160,110,0.04)');
+  ctx.fillStyle = grad; ctx.fill();
+
+  // Curve stroke
+  ctx.beginPath();
+  days.forEach((d, i) => i === 0 ? ctx.moveTo(tx(d), ty(normProbs[i])) : ctx.lineTo(tx(d), ty(normProbs[i])));
+  ctx.strokeStyle = 'rgba(80,140,90,0.75)'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+
+  // ── Confirmed ovulation markers ──
+  m.confirmedOvulations.forEach(c => {
+    if (c.cycleStart !== m.lastStart) return; // only current cycle
+    const x = tx(c.ovDay);
+    ctx.strokeStyle = c.method === 'lh' ? '#9e4f3b' : '#c47a5a';
+    ctx.lineWidth = 2; ctx.setLineDash([3,2]);
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + cH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = `600 9px DM Sans,sans-serif`;
+    const label = c.method === 'lh' ? 'LH PEAK' : 'BBT SHIFT';
+    const lw = ctx.measureText(label).width;
+    ctx.fillStyle = c.method === 'lh' ? 'rgba(158,79,59,0.85)' : 'rgba(196,122,90,0.85)';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x - lw/2 - 4, pad.t + 4, lw + 8, 13, 3);
+    else ctx.rect(x - lw/2 - 4, pad.t + 4, lw + 8, 13);
+    ctx.fill();
+    ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.fillText(label, x, pad.t + 14);
+  });
+
+  // ── Today marker ──
+  if (m.currentCycleDay && m.currentCycleDay >= 1 && m.currentCycleDay <= maxDay) {
+    const x = tx(m.currentCycleDay);
+    ctx.strokeStyle = 'rgba(196,122,90,0.45)'; ctx.lineWidth = 1.5; ctx.setLineDash([2,3]);
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + cH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(196,122,90,0.6)'; ctx.font = `bold 9px DM Sans,sans-serif`; ctx.textAlign = 'center';
+    ctx.fillText('TODAY', x, H - 5);
+  }
+
+  // ── X axis labels (cycle days) ──
+  ctx.fillStyle = '#c4a898'; ctx.font = `9px DM Sans,sans-serif`;
+  const labelDays = [1, 5, 10, 15, 20, 25, Math.round(m.avgCycle), maxDay].filter((d,i,a) => a.indexOf(d)===i && d >= 1 && d <= maxDay);
+  labelDays.forEach(d => {
+    if (m.currentCycleDay && Math.abs(d - m.currentCycleDay) < 2) return; // avoid overlap with TODAY
+    const x = tx(d);
+    ctx.textAlign = d === 1 ? 'left' : d === maxDay ? 'right' : 'center';
+    ctx.fillText(`Day ${d}`, x, H - 5);
+  });
+
+  // ── Predicted ovulation line ──
+  const xov = tx(m.predictedOvDay);
+  ctx.strokeStyle = 'rgba(80,140,90,0.6)'; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(xov, pad.t + 3); ctx.lineTo(xov, pad.t + cH); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ══════════════════════════════════════
+//  INSIGHTS
+// ══════════════════════════════════════
+function renderInsights() {
+  // Internal computation — elements may not exist if insights tab was removed
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  const s=getSettings(), entries=getEntries(), keys=Object.keys(entries).sort();
+  const temps=Object.values(entries).filter(e=>e.temp).map(e=>e.temp);
+  set('ins-avgTemp', temps.length?(temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(2):'—');
+  set('ins-peakCount', Object.values(entries).filter(e=>e.lh==='peak').length||'—');
+  const ps=keys.filter(d=>{const e=entries[d];return e.period&&e.period!=='none'&&e.period!=='spotting';});
+  if (ps.length>1) { const diffs=[]; for(let i=1;i<ps.length;i++){const a=new Date(ps[i-1]+'T00:00:00'),b=new Date(ps[i]+'T00:00:00');diffs.push(Math.round((b-a)/86400000));} set('ins-avgCycle',Math.round(diffs.reduce((a,b)=>a+b,0)/diffs.length)+'d'); set('ins-totalCycles',ps.length); }
+  else { set('ins-avgCycle',s.cycleLen+'d'); set('ins-totalCycles','—'); }
+  const fw=computeFW(s);
+  if (s.lastPeriod) {
+    const last=new Date(s.lastPeriod+'T00:00:00'), np=new Date(last); np.setDate(np.getDate()+s.cycleLen);
+    set('ins-nextPeriod', np.toLocaleDateString('en-US',{month:'long',day:'numeric'}));
+    const du=Math.round((np-new Date())/86400000);
+    set('ins-nextPeriodSub', du>0?`In about ${du} days`:du===0?'Today!':`${Math.abs(du)} days ago`);
+    if (fw) set('ins-fertileWindow',`${fw.fertileStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${fw.fertileEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`);
+  } else { set('ins-nextPeriod','—'); set('ins-nextPeriodSub','Set your last period date in Settings'); set('ins-fertileWindow','—'); }
+}
+
+// ══════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════
+function saveSettings() {
+  const s={cycleLen:parseInt(document.getElementById('set-cycleLen').value),luteal:parseInt(document.getElementById('set-luteal').value),lastPeriod:document.getElementById('set-lastPeriod').value,tempUnit:document.getElementById('set-tempUnit').value};
+  saveSettingsData(s); showToast('✓ Settings saved'); updateStatusBar(); drawMainChart(); renderInsights();
+}
+
+// ══════════════════════════════════════
+//  SYNC — JSONBin.io backend
+// ══════════════════════════════════════
+const SYNC_API_KEY_STORE = 'bloom_jb_apikey';
+const SYNC_BIN_ID_STORE  = 'bloom_jb_binid';   // stored per passphrase hash
+const JSONBIN_BASE       = 'https://api.jsonbin.io/v3';
+
+function hashStr(str) { let h=0; for(let i=0;i<str.length;i++) h=Math.imul(31,h)+str.charCodeAt(i)|0; return Math.abs(h).toString(36); }
+
+function getSyncApiKey() { return localStorage.getItem(SYNC_API_KEY_STORE)||''; }
+function getBinId() { return syncCode ? localStorage.getItem(SYNC_BIN_ID_STORE+'_'+hashStr(syncCode))||'' : ''; }
+function setBinId(id) { if (syncCode) localStorage.setItem(SYNC_BIN_ID_STORE+'_'+hashStr(syncCode), id); }
+
+let autoSyncInterval = null;
+
+function updateSyncUI(connected) {
+  const pill=document.getElementById('syncPill'), label=document.getElementById('syncPillLabel');
+  const disp=document.getElementById('syncCodeDisplay'), btns=document.getElementById('syncBtns');
+  const steps=document.getElementById('syncSetupSteps');
+  // Pre-fill saved API key
+  const savedKey=getSyncApiKey(); if (savedKey) document.getElementById('syncApiKey').value=savedKey;
+  if (connected&&syncCode) {
+    pill.className='sync-pill connected'; label.textContent=syncCode.substring(0,4)+'…';
+    disp.style.display='block'; document.getElementById('syncCodeLabel').textContent=syncCode;
+    btns.style.display='flex'; steps.style.opacity='0.5';
+  } else {
+    pill.className='sync-pill'; label.textContent='Sync';
+    disp.style.display='none'; btns.style.display='none'; steps.style.opacity='1';
+  }
+}
+
+function setSyncStatus(msg, spin) {
+  document.getElementById('syncStatus').textContent=(spin?'⟳ ':'')+msg;
+  const pill=document.getElementById('syncPill');
+  spin ? pill.classList.add('syncing') : pill.classList.remove('syncing');
+}
+
+function initSync() {
+  const key=document.getElementById('syncApiKey').value.trim();
+  if (!key) { setSyncStatus('Paste your JSONBin Secret Key first'); return; }
+  localStorage.setItem(SYNC_API_KEY_STORE, key);
+  setSyncStatus('✓ API key saved. Now enter a passphrase and Connect.');
+  showToast('✓ API key saved');
+}
+
+function connectSync() {
+  const code=document.getElementById('syncCode').value.trim();
+  if (!code||code.length<3) { setSyncStatus('Enter a passphrase (at least 3 characters)'); return; }
+  if (!getSyncApiKey()) { setSyncStatus('Save your JSONBin API key first (step 2)'); return; }
+  syncCode=code; localStorage.setItem(SYNC_KEY,syncCode);
+  updateSyncUI(true);
+  setSyncStatus('✓ Connected. Push to upload your data or Pull to download.');
+}
+
+function disconnectSync() {
+  clearAutoSync();
+  syncCode=''; localStorage.removeItem(SYNC_KEY);
+  document.getElementById('syncCode').value='';
+  updateSyncUI(false); setSyncStatus('');
+}
+
+// Push: create bin on first push, update on subsequent pushes
+async function pushSync() {
+  if (!syncCode) { showToast('Connect first'); return; }
+  const apiKey=getSyncApiKey();
+  if (!apiKey) { setSyncStatus('No API key — complete setup first'); return; }
+
+  setSyncStatus('Uploading…', true);
+  const payload = {
+    entries: getEntries(),
+    settings: getSettings(),
+    syncedAt: new Date().toISOString(),
+    passHash: hashStr(syncCode),
+    v: 1
+  };
+
+  try {
+    const binId = getBinId();
+
+    if (binId) {
+      // Update existing bin
+      const res = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type':'application/json', 'X-Master-Key': apiKey },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err=await res.json().catch(()=>({}));
+        // Bin may have been deleted — fall through to create new
+        if (res.status===404||res.status===403) { setBinId(''); return pushSync(); }
+        throw new Error(err.message||`HTTP ${res.status}`);
+      }
+    } else {
+      // Create new bin named by passphrase hash (private by default)
+      const res = await fetch(`${JSONBIN_BASE}/b`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'X-Master-Key': apiKey, 'X-Bin-Name': `bloom-${hashStr(syncCode)}`, 'X-Bin-Private': 'true' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err=await res.json().catch(()=>({}));
+        throw new Error(err.message||`HTTP ${res.status}`);
+      }
+      const data=await res.json();
+      setBinId(data.metadata?.id||data.record?.metadata?.id||'');
+    }
+
+    setSyncStatus(`✓ Pushed at ${new Date().toLocaleTimeString()}`);
+    showToast('⬆ Data pushed to cloud');
+  } catch(err) {
+    setSyncStatus(`✗ Push failed: ${err.message}`);
+    showToast('Push failed — check your API key');
+  }
+}
+
+// Pull: find bin by name or stored ID, load latest record
+async function pullSync() {
+  if (!syncCode) { showToast('Connect first'); return; }
+  const apiKey=getSyncApiKey();
+  if (!apiKey) { setSyncStatus('No API key — complete setup first'); return; }
+
+  setSyncStatus('Downloading…', true);
+
+  try {
+    let binId=getBinId();
+
+    // If we don't have a bin ID yet, search by name
+    if (!binId) {
+      const res=await fetch(`${JSONBIN_BASE}/b?limit=50`, {
+        headers: { 'X-Master-Key': apiKey }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status} — check your API key`);
+      const list=await res.json();
+      const bins=list.record||list||[];
+      const match=bins.find(b=>(b.name||b.record?.name||'')===`bloom-${hashStr(syncCode)}`);
+      if (!match) throw new Error('No data found for this passphrase. Push from your other device first.');
+      binId=match.id||match.record?.id||'';
+      setBinId(binId);
+    }
+
+    // Fetch latest record
+    const res=await fetch(`${JSONBIN_BASE}/b/${binId}/latest`, {
+      headers: { 'X-Master-Key': apiKey }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const p=data.record;
+
+    if (!p||p.passHash!==hashStr(syncCode)) throw new Error('Passphrase mismatch — wrong code or wrong bin');
+
+    // Merge: remote wins for any day that remote has and is newer
+    const localEntries=getEntries();
+    const remoteEntries=p.entries||{};
+    const merged={...localEntries};
+    Object.keys(remoteEntries).forEach(d=>{
+      const rem=remoteEntries[d], loc=localEntries[d];
+      if (!loc||(rem.timestamp||0)>(loc.timestamp||0)) merged[d]=rem;
+    });
+    saveEntries(merged);
+
+    if (p.settings) {
+      saveSettingsData(p.settings);
+      const s=p.settings;
+      document.getElementById('set-cycleLen').value=s.cycleLen||28;
+      document.getElementById('set-luteal').value=s.luteal||14;
+      document.getElementById('set-lastPeriod').value=s.lastPeriod||'';
+      document.getElementById('set-tempUnit').value=s.tempUnit||'F';
+    }
+
+    setSyncStatus(`✓ Pulled — synced at ${new Date(p.syncedAt).toLocaleString()}`);
+    showToast('⬇ Data synced from cloud');
+    updateStatusBar(); drawMainChart(); renderInsights(); renderCalendar();
+    const curDate = document.getElementById('logDate').value;
+    setLogLockState(getEntries()[curDate] || null);
+  } catch(err) {
+    setSyncStatus(`✗ Pull failed: ${err.message}`);
+    showToast('Pull failed');
+    document.getElementById('syncPill').classList.remove('syncing');
+  }
+}
+
+// Auto-sync: pull every N minutes when connected
+function autoSyncToggle() {
+  const btn=document.getElementById('autoSyncBtn');
+  if (autoSyncInterval) {
+    clearAutoSync(); btn.textContent='⏱ Auto-sync: Off';
+  } else {
+    pullSync(); // immediate pull
+    autoSyncInterval=setInterval(pullSync, 3*60*1000); // every 3 min
+    btn.textContent='⏱ Auto-sync: On (3m)';
+    showToast('Auto-sync enabled');
+  }
+}
+function clearAutoSync() { clearInterval(autoSyncInterval); autoSyncInterval=null; }
+
+// ══════════════════════════════════════
+//  IMPORT — Natural Cycles
+// ══════════════════════════════════════
+function runNcImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('importStatus');
+  status.textContent = 'Reading file…';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const raw = JSON.parse(e.target.result);
+      if (!Array.isArray(raw)) throw new Error('Unexpected format — expected a JSON array');
+
+      // Group by date
+      const days = {};
+      const ensure = d => { if (!days[d]) days[d] = {}; };
+
+      for (const m of raw) {
+        const date = m.date;
+        if (!date) continue;
+        ensure(date);
+
+        switch (m.type) {
+          case 'bbt': {
+            const c = m.value?.celsius;
+            if (c != null && !m.value?.excluded) {
+              // Celsius → Fahrenheit, rounded to 2dp
+              days[date].temp = Math.round((c * 9/5 + 32) * 100) / 100;
+            }
+            break;
+          }
+          case 'period':
+            days[date].period = m.value?.option || 'light'; // heavy/medium/light
+            break;
+          case 'spotting':
+            if (!days[date].period) days[date].period = 'spotting';
+            break;
+          case 'tests': {
+            const opts = (m.value || []).map(v => v.option);
+            if (opts.includes('ovulation_positive')) days[date].lh = 'peak';
+            else if (opts.includes('ovulation_negative') && days[date].lh !== 'peak') days[date].lh = 'low';
+            break;
+          }
+          case 'notes':
+            days[date].notes = m.value?.text || '';
+            break;
+          case 'pain': {
+            const opts = (m.value || []).map(v => v.option);
+            if (opts.includes('period_cramps')) { ensure(date); days[date].symptoms = days[date].symptoms || []; if (!days[date].symptoms.includes('cramps')) days[date].symptoms.push('cramps'); }
+            break;
+          }
+          case 'energy': {
+            const opts = (m.value || []).map(v => v.option);
+            if (opts.some(o => o.includes('tired') || o.includes('low'))) { days[date].symptoms = days[date].symptoms || []; if (!days[date].symptoms.includes('fatigue')) days[date].symptoms.push('fatigue'); }
+            break;
+          }
+          case 'sex_life': {
+            const opts = (m.value || []).map(v => v.option);
+            if (opts.includes('high_sex_drive')) { days[date].symptoms = days[date].symptoms || []; if (!days[date].symptoms.includes('high-sex-drive')) days[date].symptoms.push('high-sex-drive'); }
+            break;
+          }
+          case 'feelings':
+          case 'mind': {
+            const opts = (m.value || []).map(v => v.option);
+            if (opts.some(o => ['sad','anxious','stressed','irritable','mood_swings'].includes(o))) { days[date].symptoms = days[date].symptoms || []; if (!days[date].symptoms.includes('mood-swings')) days[date].symptoms.push('mood-swings'); }
+            break;
+          }
+        }
+      }
+
+      // Build entries, merging with existing (existing wins per day)
+      const existing = getEntries();
+      let added = 0, skipped = 0;
+
+      for (const [date, d] of Object.entries(days)) {
+        // Only import if day has at least one meaningful data point
+        const hasSomething = d.temp || (d.period && d.period !== 'none') || d.lh || d.notes || (d.symptoms?.length);
+        if (!hasSomething) continue;
+
+        if (existing[date]) {
+          skipped++;
+          continue; // existing entry wins
+        }
+
+        existing[date] = {
+          date,
+          lh:       d.lh       || 'none',
+          period:   d.period   || 'none',
+          symptoms: d.symptoms || [],
+          cm:       '',
+          notes:    d.notes    || '',
+          timestamp: 0  // marks as imported, not manually entered
+        };
+        if (d.temp) existing[date].temp = d.temp;
+        added++;
+      }
+
+      saveEntries(existing);
+
+      // Try to detect last period start for settings
+      const s = getSettings();
+      if (!s.lastPeriod) {
+        const periodDays = Object.keys(existing)
+          .filter(d => ['light','medium','heavy'].includes(existing[d].period))
+          .sort();
+        // Find most recent period start (day where previous day has no period)
+        for (let i = periodDays.length - 1; i >= 0; i--) {
+          const prev = new Date(periodDays[i] + 'T00:00:00');
+          prev.setDate(prev.getDate() - 1);
+          const prevStr = fmtDate(prev);
+          if (!existing[prevStr] || !['light','medium','heavy'].includes(existing[prevStr].period)) {
+            s.lastPeriod = periodDays[i];
+            saveSettingsData(s);
+            document.getElementById('set-lastPeriod').value = periodDays[i];
+            break;
+          }
+        }
+      }
+
+      status.innerHTML = `<span style="color:var(--sage)">✓ Imported ${added} days</span>${skipped ? ` · ${skipped} existing days kept` : ''}`;
+      showToast(`✓ Imported ${added} days from Natural Cycles`);
+      updateStatusBar(); drawMainChart(); renderInsights(); renderCalendar();
+
+    } catch (err) {
+      status.innerHTML = `<span style="color:var(--deep-rose)">✗ ${err.message}</span>`;
+      showToast('Import failed');
+    }
+
+    // Reset file input so same file can be re-selected if needed
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════
+function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify({entries:getEntries(),settings:getSettings(),exportedAt:new Date().toISOString()},null,2)],{type:'application/json'})); a.download=`bloom-${fmtDate(new Date())}.json`; a.click(); showToast('📤 Exported JSON'); }
+function exportCSV() {
+  const entries=getEntries(), keys=Object.keys(entries).sort();
+  const rows=[['Date','BBT Temp','LH Strip','Period Flow','Cervical Mucus','Symptoms','Notes']];
+  keys.forEach(d=>{const e=entries[d];rows.push([d,e.temp||'',e.lh||'',e.period||'',e.cm||'',(e.symptoms||[]).join('; '),e.notes||'']);});
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`bloom-${fmtDate(new Date())}.csv`; a.click(); showToast('📊 Exported CSV');
+}
+
+// ══════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════
+function confirmDelete(ds) {
+  pendingAction=()=>{
+    const e=getEntries(); delete e[ds]; saveEntries(e);
+    renderHistory(); renderCalendar(); renderInsights(); drawMainChart();
+    // If deleted entry is the currently shown date, unlock form
+    if (document.getElementById('logDate').value === ds) setLogLockState(null);
+    showToast('Entry deleted'); closeModal();
+  };
+  openModal('Delete Entry?',`Remove the log for ${fmtDisplayDate(ds)}?`);
+}
+function confirmClear() {
+  pendingAction=()=>{
+    localStorage.removeItem(STORE_KEY);
+    renderHistory(); renderCalendar(); renderInsights(); updateStatusBar(); drawMainChart();
+    setLogLockState(null);
+    showToast('All data cleared'); closeModal();
+  };
+  openModal('Clear All Data?','This will permanently delete all your logged entries. This cannot be undone.');
+}
+function openModal(title,desc) { document.getElementById('modalTitle').textContent=title; document.getElementById('modalDesc').textContent=desc; document.getElementById('modal').classList.add('open'); document.getElementById('modalConfirmBtn').onclick=()=>pendingAction&&pendingAction(); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); pendingAction=null; }
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+
+// ══════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════
+function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fmtDisplayDate(ds) { return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
+function cap(str) { return str?str.charAt(0).toUpperCase()+str.slice(1):''; }
+
+let toastTimer;
+function showToast(msg) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600); }
+
+window.addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(drawMainChart,150);});
+
+// Register service worker for PWA offline support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+init();
+</script>
+</body>
+</html>

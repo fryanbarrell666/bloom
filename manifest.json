@@ -1,0 +1,24 @@
+{
+  "name": "Bloom — Fertility Tracker",
+  "short_name": "Bloom",
+  "description": "Your personal fertility journal",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#faf6f1",
+  "theme_color": "#faf6f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
