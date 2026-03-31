@@ -516,11 +516,22 @@
   </div>
 
   <div class="card">
+    <div class="card-title">Data</div>
     <div class="card-sub">Export and manage your logs</div>
     <div class="data-actions">
       <button class="btn-outline" onclick="exportData()">📤 Export JSON</button>
       <button class="btn-outline" onclick="exportCSV()">📊 Export CSV</button>
       <button class="btn-outline danger" onclick="confirmClear()">🗑 Clear All Data</button>
+    </div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(196,122,90,0.1)">
+      <div style="font-size:11px;color:var(--light-mid);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Restore from Bloom export</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label for="bloomImportFile" style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400">
+          <div class="btn-outline" style="cursor:pointer;display:inline-block">📂 Choose Bloom export JSON</div>
+        </label>
+        <input type="file" id="bloomImportFile" accept=".json" style="display:none" onchange="runBloomImport(this)">
+        <div id="bloomImportStatus" style="font-size:12px;color:var(--mid)"></div>
+      </div>
     </div>
   </div>
 
@@ -2285,6 +2296,72 @@ function runNcImport(input) {
     }
 
     // Reset file input so same file can be re-selected if needed
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════
+//  IMPORT — Bloom export JSON
+// ══════════════════════════════════════
+function runBloomImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('bloomImportStatus');
+  status.textContent = 'Reading file…';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      // Accept both { entries, settings } shape and raw entries object
+      const importedEntries  = data.entries  || data;
+      const importedSettings = data.settings || null;
+
+      if (typeof importedEntries !== 'object' || Array.isArray(importedEntries)) {
+        throw new Error('Unrecognised format — please use a Bloom JSON export');
+      }
+
+      // Merge entries — imported wins for days not already in local storage,
+      // local manually-entered entries (timestamp > 0) always win
+      const existing = getEntries();
+      let added = 0, skipped = 0;
+
+      Object.keys(importedEntries).forEach(date => {
+        const imp = importedEntries[date];
+        const loc = existing[date];
+        // Keep local if it was manually entered (timestamp > 0)
+        if (loc && loc.timestamp > 0) { skipped++; return; }
+        existing[date] = imp;
+        added++;
+      });
+
+      saveEntries(existing);
+
+      // Restore settings only if not already configured locally
+      if (importedSettings) {
+        const currentSettings = getSettings();
+        if (!currentSettings.lastPeriod && importedSettings.lastPeriod) {
+          saveSettingsData({ ...currentSettings, ...importedSettings });
+          const s = importedSettings;
+          document.getElementById('set-cycleLen').value   = s.cycleLen  || 28;
+          document.getElementById('set-luteal').value     = s.luteal    || 14;
+          document.getElementById('set-lastPeriod').value = s.lastPeriod || '';
+          document.getElementById('set-tempUnit').value   = s.tempUnit  || 'F';
+        }
+      }
+
+      status.innerHTML = `<span style="color:var(--sage)">✓ Restored ${added} entries</span>${skipped ? ` · ${skipped} local entries kept` : ''}`;
+      showToast(`✓ Restored ${added} entries from Bloom export`);
+      updateStatusBar(); drawMainChart(); renderInsights(); renderCalendar();
+      const curDate = document.getElementById('logDate').value;
+      setLogLockState(getEntries()[curDate] || null);
+
+    } catch (err) {
+      status.innerHTML = `<span style="color:var(--deep-rose)">✗ ${err.message}</span>`;
+      showToast('Import failed');
+    }
     input.value = '';
   };
   reader.readAsText(file);
