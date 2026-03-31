@@ -483,10 +483,22 @@
     </div>
 
     <div class="sync-code-display" id="syncCodeDisplay">Connected · bin for <span id="syncCodeLabel"></span></div>
+    <div id="syncBinIdDisplay" style="display:none;margin-top:8px;padding:9px 13px;background:var(--paper);border-radius:10px;border:1px dashed var(--blush);font-size:11px;color:var(--mid)">
+      Bin ID: <span id="syncBinIdLabel" style="font-family:monospace;font-size:12px;color:var(--deep-rose);word-break:break-all"></span>
+      <div style="margin-top:6px;font-size:10px;color:var(--light-mid)">Share this with other devices if Pull isn't finding the bin automatically</div>
+    </div>
+    <div style="display:none;margin-top:8px" id="manualBinIdWrap">
+      <div style="font-size:11px;color:var(--mid);margin-bottom:5px">Or enter Bin ID manually:</div>
+      <div class="sync-row">
+        <input type="text" id="manualBinId" placeholder="Paste Bin ID here" autocomplete="off" style="font-family:monospace;font-size:12px">
+        <button onclick="applyManualBinId()">Use</button>
+      </div>
+    </div>
     <div class="sync-status" id="syncStatus"></div>
     <div class="sync-btns" id="syncBtns">
       <button class="primary" onclick="pushSync()">⬆ Push my data</button>
       <button onclick="pullSync()">⬇ Pull from cloud</button>
+      <button onclick="toggleManualBinId()">🔑 Enter Bin ID</button>
       <button onclick="autoSyncToggle()" id="autoSyncBtn">⏱ Auto-sync: Off</button>
       <button onclick="disconnectSync()">Disconnect</button>
       <button onclick="fullResetSync()" style="color:#c0392b;border-color:rgba(192,57,43,0.3)">↺ Full Reset</button>
@@ -2097,8 +2109,15 @@ async function pushSync() {
       setBinId(data.metadata?.id||data.record?.metadata?.id||'');
     }
 
+    const binId = getBinId();
     setSyncStatus(`✓ Pushed at ${new Date().toLocaleTimeString()}`);
     showToast('⬆ Data pushed to cloud');
+
+    // Show the bin ID so other devices can use it if auto-discovery fails
+    if (binId) {
+      document.getElementById('syncBinIdDisplay').style.display='block';
+      document.getElementById('syncBinIdLabel').textContent=binId;
+    }
   } catch(err) {
     setSyncStatus(`✗ Push failed: ${err.message}`);
     showToast('Push failed — check your API key');
@@ -2116,17 +2135,33 @@ async function pullSync() {
   try {
     let binId=getBinId();
 
-    // If we don't have a bin ID yet, search by name
+    // If we don't have a bin ID locally, search JSONBin for it by name
     if (!binId) {
-      const res=await fetch(`${JSONBIN_BASE}/b?limit=50`, {
+      const res=await fetch(`${JSONBIN_BASE}/b`, {
         headers: { 'X-Master-Key': apiKey }
       });
       if (!res.ok) throw new Error(`HTTP ${res.status} — check your API key`);
       const list=await res.json();
-      const bins=list.record||list||[];
-      const match=bins.find(b=>(b.name||b.record?.name||'')===`bloom-${hashStr(syncCode)}`);
-      if (!match) throw new Error('No data found for this passphrase. Push from your other device first.');
-      binId=match.id||match.record?.id||'';
+
+      // JSONBin returns { record: [ {record: {name, id}}, ... ] } or flat array
+      const bins = Array.isArray(list) ? list
+                 : Array.isArray(list.record) ? list.record
+                 : [];
+
+      const targetName = `bloom-${hashStr(syncCode)}`;
+      const match = bins.find(b => {
+        const name = b.record?.snippetMeta?.name || b.record?.name || b.name || b.snippetMeta?.name || '';
+        const id   = b.record?.id || b.id || '';
+        return name === targetName || name.includes(hashStr(syncCode));
+      });
+
+      if (!match) {
+        // Last resort: try fetching all bins metadata individually isn't practical,
+        // so show a helpful message with the bin name they should look for
+        throw new Error(`No bin found named "${targetName}". Make sure you Pushed from the same passphrase on your other device.`);
+      }
+
+      binId = match.record?.id || match.id || '';
       setBinId(binId);
     }
 
@@ -2134,11 +2169,13 @@ async function pullSync() {
     const res=await fetch(`${JSONBIN_BASE}/b/${binId}/latest`, {
       headers: { 'X-Master-Key': apiKey }
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — bin fetch failed`);
     const data=await res.json();
     const p=data.record;
 
-    if (!p||p.passHash!==hashStr(syncCode)) throw new Error('Passphrase mismatch — wrong code or wrong bin');
+    if (!p) throw new Error('Empty response from JSONBin');
+    if (p.passHash && p.passHash!==hashStr(syncCode)) throw new Error('Passphrase mismatch — wrong code or wrong bin');
+
 
     // Merge: remote wins for any day that remote has and is newer
     const localEntries=getEntries();
@@ -2319,6 +2356,22 @@ function runNcImport(input) {
     input.value = '';
   };
   reader.readAsText(file);
+}
+
+function toggleManualBinId() {
+  const wrap = document.getElementById('manualBinIdWrap');
+  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+}
+
+function applyManualBinId() {
+  const id = document.getElementById('manualBinId').value.trim();
+  if (!id) { setSyncStatus('Paste a Bin ID first'); return; }
+  setBinId(id);
+  document.getElementById('syncBinIdDisplay').style.display='block';
+  document.getElementById('syncBinIdLabel').textContent=id;
+  document.getElementById('manualBinIdWrap').style.display='none';
+  setSyncStatus('✓ Bin ID saved — tap Pull now');
+  showToast('Bin ID set — Pull to sync');
 }
 
 // ══════════════════════════════════════
