@@ -489,6 +489,7 @@
       <button onclick="pullSync()">⬇ Pull from cloud</button>
       <button onclick="autoSyncToggle()" id="autoSyncBtn">⏱ Auto-sync: Off</button>
       <button onclick="disconnectSync()">Disconnect</button>
+      <button onclick="fullResetSync()" style="color:#c0392b;border-color:rgba(192,57,43,0.3)">↺ Full Reset</button>
     </div>
   </div>
 
@@ -1994,11 +1995,30 @@ function updateSyncUI(connected) {
   if (connected&&syncCode) {
     pill.className='sync-pill connected'; label.textContent=syncCode.substring(0,4)+'…';
     disp.style.display='block'; document.getElementById('syncCodeLabel').textContent=syncCode;
-    btns.style.display='flex'; steps.style.opacity='0.5';
+    btns.style.display='flex';
+    steps.style.opacity='0.5';
+    steps.style.pointerEvents='auto'; // always keep interactive so API key can be corrected
   } else {
     pill.className='sync-pill'; label.textContent='Sync';
-    disp.style.display='none'; btns.style.display='none'; steps.style.opacity='1';
+    disp.style.display='none'; btns.style.display='none';
+    steps.style.opacity='1'; steps.style.pointerEvents='auto';
   }
+}
+
+function fullResetSync() {
+  // Wipe every sync-related key from localStorage
+  clearAutoSync();
+  syncCode='';
+  localStorage.removeItem(SYNC_KEY);
+  localStorage.removeItem(SYNC_API_KEY_STORE);
+  // Clear all bin IDs
+  Object.keys(localStorage).filter(k=>k.startsWith(SYNC_BIN_ID_STORE)).forEach(k=>localStorage.removeItem(k));
+  // Reset UI inputs
+  document.getElementById('syncCode').value='';
+  document.getElementById('syncApiKey').value='';
+  updateSyncUI(false);
+  setSyncStatus('✓ Sync fully reset — start from step 1');
+  showToast('Sync reset');
 }
 
 function setSyncStatus(msg, spin) {
