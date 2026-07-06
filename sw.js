@@ -1,9 +1,9 @@
-const CACHE = 'bloom-v3';
+const CACHE = 'bloom-v4';
 const SHELL = [
   '/bloom/',
   '/bloom/index.html',
   '/bloom/manifest.json',
-  'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=DM+Sans:wght@300;400;500;600&display=swap'
 ];
 
 // Install: cache the app shell
