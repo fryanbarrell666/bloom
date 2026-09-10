@@ -213,6 +213,10 @@
   .insight-tile { background: var(--paper); border: 1px solid rgba(196,122,90,0.16); border-radius: 14px; padding: 13px; text-align: center; }
   .i-val { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 300; color: var(--deep-rose); line-height: 1; }
   .i-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--light-mid); margin-top: 3px; }
+  button.insight-tile { appearance: none; -webkit-appearance: none; font-family: 'DM Sans', sans-serif; cursor: pointer; width: 100%; transition: border-color 0.2s, transform 0.1s; }
+  button.insight-tile:hover { border-color: rgba(124,139,94,0.5); }
+  button.insight-tile:active { transform: scale(0.99); }
+  button.insight-tile.unset .i-val { color: var(--primary-ink); font-size: 15px !important; font-family: 'DM Sans', sans-serif; font-weight: 600; }
 
   /* SYNC STATUS CARD */
   .sync-status-card { display: flex; align-items: center; gap: 13px; padding: 15px 17px; margin-bottom: 14px; border-radius: 16px; background: rgba(111,160,124,0.10); border: 1px solid rgba(111,160,124,0.30); }
@@ -757,7 +761,10 @@
 
   <div class="insight-row">
     <div class="insight-tile"><div class="i-val" style="font-size:20px" id="pregDueTile">—</div><div class="i-label">Est. Due Date</div></div>
-    <div class="insight-tile"><div class="i-val" style="font-size:20px" id="pregApptTile">—</div><div class="i-label">Next Appointment</div></div>
+    <button type="button" class="insight-tile" id="pregApptCard" onclick="pickAppt()">
+      <div class="i-val" style="font-size:20px" id="pregApptTile">—</div><div class="i-label">Next Appointment</div>
+    </button>
+    <input type="date" id="pregApptQuick" onchange="saveApptQuick()" aria-hidden="true" tabindex="-1" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0">
   </div>
 
   <div class="card">
@@ -3195,7 +3202,11 @@ function renderPregHome() {
   document.getElementById('pregSizeNote').textContent = info.note;
   // Tiles
   document.getElementById('pregDueTile').textContent = fmtLongDate(g.due);
-  document.getElementById('pregApptTile').textContent = s.pregnancy.nextAppt ? fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00')) : 'Not set';
+  const apptSet = !!s.pregnancy.nextAppt;
+  const apptCard = document.getElementById('pregApptCard');
+  document.getElementById('pregApptTile').textContent = apptSet ? fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00')) : '+ Set date';
+  apptCard.classList.toggle('unset', !apptSet);
+  apptCard.setAttribute('aria-label', apptSet ? `Next appointment ${fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00'))}, tap to change` : 'Set your next appointment');
   // Log-today prefill
   document.getElementById('pregLogDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   const today = fmtDate(new Date()), pe = getPregEntries()[today];
@@ -3286,6 +3297,22 @@ function savePregAppt() {
   const s = getSettings(); if (!s.pregnancy) return;
   s.pregnancy.nextAppt = document.getElementById('preg-appt').value || null;
   saveSettingsData(s); showToast('✓ Appointment saved');
+  if (syncCode) pushSync();
+}
+// Tap the Home "Next appointment" tile to set/change the date inline (no trip to Settings)
+function pickAppt() {
+  const s = getSettings(); if (!s.pregnancy) return;
+  const q = document.getElementById('pregApptQuick');
+  q.value = s.pregnancy.nextAppt || '';
+  if (q.showPicker) { try { q.showPicker(); return; } catch (e) {} }
+  q.focus();
+}
+function saveApptQuick() {
+  const s = getSettings(); if (!s.pregnancy) return;
+  s.pregnancy.nextAppt = document.getElementById('pregApptQuick').value || null;
+  saveSettingsData(s);
+  renderPregHome();
+  showToast('✓ Appointment saved');
   if (syncCode) pushSync();
 }
 function savePregBbt() {
