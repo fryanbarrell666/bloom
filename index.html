@@ -353,6 +353,12 @@
   .res-arrow svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
   .care-note { font-size: 12px; color: var(--mid); line-height: 1.55; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(124,139,94,0.16); }
 
+  /* "What to expect" list */
+  .appt-exp-list { list-style: none; margin: 6px 0 12px; }
+  .appt-exp-list li { position: relative; padding-left: 20px; font-size: 13px; color: var(--mid); line-height: 1.5; margin-bottom: 9px; }
+  .appt-exp-list li:last-child { margin-bottom: 4px; }
+  .appt-exp-list li::before { content: ''; position: absolute; left: 3px; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+
   /* Week list cards */
   .week-card { display: flex; gap: 15px; align-items: center; padding: 14px 15px; margin-bottom: 10px; background: var(--warm-white); border: 1px solid rgba(124,139,94,0.18); border-radius: 16px; box-shadow: 0 2px 12px rgba(94,107,69,0.04); }
   .week-card.current { background: var(--primary); border-color: var(--primary); }
@@ -765,6 +771,15 @@
       <div class="i-val" style="font-size:20px" id="pregApptTile">—</div><div class="i-label">Next Appointment</div>
     </button>
     <input type="date" id="pregApptQuick" onchange="saveApptQuick()" aria-hidden="true" tabindex="-1" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0">
+  </div>
+
+  <!-- What to expect around the set appointment (static, typical-language only) -->
+  <div class="card" id="apptExpectCard" hidden>
+    <div class="card-title" id="apptExpHeading">Around this visit</div>
+    <div class="card-sub" id="apptExpWhen"></div>
+    <ul class="appt-exp-list" id="apptExpList"></ul>
+    <div id="apptExpLink"></div>
+    <div class="care-note">Every visit is a little different — Dr. Gavrilman sets the plan for yours.</div>
   </div>
 
   <div class="card">
@@ -3133,6 +3148,74 @@ const PREGNANCY_RESOURCES = {
   ]
 };
 
+// What typically happens around a visit, keyed by gestational-week band. Typical/"often"
+// language only — never a personalized plan. Static lookup + linked sources only.
+const APPT_EXPECTATIONS = {
+  early: {
+    heading: "Your first prenatal visit",
+    typical: [
+      "Confirming and dating the pregnancy (often bloodwork and/or an ultrasound)",
+      "A full medical and family history",
+      "A physical exam and baseline lab work",
+      "Time to ask questions and plan the visits ahead"
+    ],
+    link: { source:"Johns Hopkins", label:"The first trimester & first visit", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/the-first-trimester" }
+  },
+  firstScreen: {
+    heading: "Around this visit",
+    typical: [
+      "A check of weight and blood pressure, and a urine sample",
+      "Listening for the heartbeat once it can be detected",
+      "First-trimester screening may be offered (ultrasound + blood test)"
+    ],
+    link: { source:"Johns Hopkins", label:"Common tests during pregnancy", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/common-tests-during-pregnancy" }
+  },
+  anatomy: {
+    heading: "Around this visit",
+    typical: [
+      "Routine weight, blood pressure, and urine checks",
+      "The anatomy ultrasound is usually done around 20 weeks",
+      "You may be able to learn the baby's sex if you wish"
+    ],
+    link: { source:"Mayo Clinic", label:"Second trimester: what to expect", url:"https://www.mayoclinic.org/healthy-lifestyle/pregnancy-week-by-week/in-depth/fetal-development/art-20046151" }
+  },
+  glucose: {
+    heading: "Around this visit",
+    typical: [
+      "Glucose screening for gestational diabetes is common in this window",
+      "Routine weight, blood pressure, urine, and heartbeat checks",
+      "Visits often become more frequent from here"
+    ],
+    link: { source:"Johns Hopkins", label:"Common tests during pregnancy", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/common-tests-during-pregnancy" }
+  },
+  thirdRoutine: {
+    heading: "Around this visit",
+    typical: [
+      "Checking the baby's growth and position, plus fundal height",
+      "Routine weight, blood pressure, and urine checks",
+      "Vaccines like Tdap are often given in the third trimester"
+    ],
+    link: { source:"Johns Hopkins", label:"The third trimester: what to expect", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/the-third-trimester" }
+  },
+  nearTerm: {
+    heading: "Around this visit",
+    typical: [
+      "Group B strep testing is usually done around 36 weeks",
+      "Visits are often weekly now; baby's position is checked",
+      "Talking through signs of labor and your birth preferences"
+    ],
+    link: { source:"Johns Hopkins", label:"The third trimester: what to expect", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/the-third-trimester" }
+  }
+};
+// Gestational week at an arbitrary date; band selection per spec.
+function weeksAtDate(preg, dateStr) {
+  const lmp = new Date(preg.startLMP+'T00:00:00'), d = new Date(dateStr+'T00:00:00');
+  return Math.floor(Math.max(0, (d - lmp)/86400000) / 7);
+}
+function apptBand(w) {
+  return w<=10 ? 'early' : w<=14 ? 'firstScreen' : w<=23 ? 'anatomy' : w<=27 ? 'glucose' : w<=35 ? 'thirdRoutine' : 'nearTerm';
+}
+
 const clampWeek = w => Math.max(4, Math.min(40, w));
 function pregGestation(preg) {
   const lmp = new Date(preg.startLMP+'T00:00:00');
@@ -3207,6 +3290,20 @@ function renderPregHome() {
   document.getElementById('pregApptTile').textContent = apptSet ? fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00')) : '+ Set date';
   apptCard.classList.toggle('unset', !apptSet);
   apptCard.setAttribute('aria-label', apptSet ? `Next appointment ${fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00'))}, tap to change` : 'Set your next appointment');
+  // "What to expect around this visit" — only when a date is set
+  const expCard = document.getElementById('apptExpectCard');
+  if (apptSet) {
+    const wAt = weeksAtDate(s.pregnancy, s.pregnancy.nextAppt);
+    const band = APPT_EXPECTATIONS[apptBand(wAt)];
+    document.getElementById('apptExpHeading').textContent = band.heading;
+    document.getElementById('apptExpWhen').textContent = `${fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00'))} · around week ${wAt}`;
+    document.getElementById('apptExpList').innerHTML = band.typical.map(t=>`<li>${t}</li>`).join('');
+    const l = band.link;
+    document.getElementById('apptExpLink').innerHTML = `<a class="res-link" href="${l.url}" target="_blank" rel="noopener noreferrer"><div class="res-body"><div class="res-label">${l.label}</div><div class="res-source">${l.source} ↗</div></div><span class="res-arrow"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a>`;
+    expCard.hidden = false;
+  } else {
+    expCard.hidden = true;
+  }
   // Log-today prefill
   document.getElementById('pregLogDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   const today = fmtDate(new Date()), pe = getPregEntries()[today];
