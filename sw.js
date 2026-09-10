@@ -1,4 +1,4 @@
-const CACHE = 'bloom-v4';
+const CACHE = 'bloom-v6';
 const SHELL = [
   '/bloom/',
   '/bloom/index.html',

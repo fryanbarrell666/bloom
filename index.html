@@ -25,8 +25,9 @@
     --terracotta: #C47A5A;                  /* period fill, temp line */
     --deep-rose: #9E4F3B; --sage: #6FA07C;  /* fertile */
     --fertile-text: #3A6A48;
-    --charcoal: #2A211C; --mid: #8A6A5A; --light-mid: #C2A896;
+    --charcoal: #2A211C; --mid: #755A4C; --light-mid: #7C5E50; /* darkened from #8A6A5A/#C2A896 to pass WCAG AA as text on cream, white and paper */
     --ink: #2A211C; --paper: #F3E9E0;
+    --primary-ink: #A84F35;                 /* terracotta darkened for small text on light surfaces (AA) */
     --phone-dark: #241C18;                  /* device chrome / today ring */
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,12 +43,12 @@
   .hero-day { position: relative; font-family: 'Fraunces', serif; font-size: 33px; font-weight: 300; line-height: 1.15; margin-top: 12px; }
   .hero-day strong { font-weight: 600; }
   .hero-day .phase { opacity: 0.82; }
-  .hero-status { position: relative; font-size: 13px; margin-top: 7px; opacity: 0.9; line-height: 1.5; }
+  .hero-status { position: relative; font-size: 14px; margin-top: 8px; opacity: 0.96; line-height: 1.5; font-weight: 500; }
 
   /* PAGE HEADER (History / Predict / Settings) */
   .page-header { padding: 20px 2px 12px; }
   .page-header h1 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 500; color: var(--ink); line-height: 1.1; }
-  .page-header .cap { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--light-mid); margin-top: 5px; }
+  .page-header .cap { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--light-mid); margin-top: 5px; }
 
   /* legacy sync pill — hidden, class still toggled by sync JS */
   .sync-pill { display: none; }
@@ -55,25 +56,25 @@
 
   /* BOTTOM TAB BAR */
   .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; display: flex; background: var(--warm-white); border-top: 1px solid rgba(196,122,90,0.16); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px rgba(158,79,59,0.06); }
-  .tabbar button { flex: 1; min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: none; background: transparent; color: var(--light-mid); font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.02em; cursor: pointer; padding: 4px 2px; transition: color 0.2s; }
+  .tabbar button { flex: 1; min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: none; background: transparent; color: var(--light-mid); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.02em; cursor: pointer; padding: 4px 2px; transition: color 0.2s; }
   .tabbar button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-  .tabbar button.active { color: var(--primary); font-weight: 600; }
+  .tabbar button.active { color: var(--primary-ink); font-weight: 600; }
 
   /* GRAPH CARD */
   .graph-card { background: var(--warm-white); border: 1px solid rgba(196,122,90,0.18); border-radius: 18px; padding: 18px 20px 14px; margin-bottom: 14px; box-shadow: 0 2px 16px rgba(158,79,59,0.04); }
   .graph-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
   .graph-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 400; color: var(--charcoal); }
-  .graph-sub { font-size: 10px; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+  .graph-sub { font-size: 11px; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
   .fertile-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
   .fertile-chip.fertile { background: rgba(138,170,140,0.2); color: #3d7050; }
   .fertile-chip.peak    { background: rgba(158,79,59,0.15); color: var(--deep-rose); }
   .fertile-chip.luteal  { background: rgba(196,122,90,0.1); color: var(--mid); }
   .fertile-chip.follicular { background: rgba(138,170,140,0.1); color: var(--mid); }
-  .days-to { font-size: 10px; color: var(--light-mid); margin-top: 3px; text-align: right; }
+  .days-to { font-size: 11px; color: var(--light-mid); margin-top: 3px; text-align: right; }
   .graph-wrap { position: relative; width: 100%; margin: 8px 0 6px; cursor: grab; user-select: none; }
   .graph-wrap:active { cursor: grabbing; }
   .graph-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 2px; }
-  .gl { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--mid); }
+  .gl { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--mid); }
   .gl-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
   .gl-line { width: 14px; height: 2px; border-radius: 1px; flex-shrink: 0; }
   .gl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -81,70 +82,92 @@
   /* CARDS */
   .card { background: var(--warm-white); border: 1px solid rgba(196,122,90,0.18); border-radius: 18px; padding: 18px 20px; margin-bottom: 14px; box-shadow: 0 2px 16px rgba(158,79,59,0.04); }
   .card-title { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 400; color: var(--charcoal); margin-bottom: 3px; }
-  .card-sub { font-size: 10px; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
+  .card-sub { font-size: 11px; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
 
   /* FORMS */
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
   .form-group { display: flex; flex-direction: column; gap: 5px; }
-  label { font-size: 10px; font-weight: 500; color: var(--mid); letter-spacing: 0.08em; text-transform: uppercase; }
+  label { font-size: 11px; font-weight: 500; color: var(--mid); letter-spacing: 0.08em; text-transform: uppercase; }
   input[type="text"],input[type="date"],input[type="number"],select,textarea { width: 100%; padding: 9px 13px; border: 1.5px solid var(--blush); border-radius: 10px; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
   input:focus,select:focus,textarea:focus { border-color: var(--terracotta); background: var(--warm-white); }
   textarea { resize: vertical; min-height: 66px; line-height: 1.5; }
+  /* Visible keyboard focus (inputs suppress the default outline above) */
+  :focus-visible { outline: 2px solid var(--primary-ink); outline-offset: 2px; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--primary-ink); outline-offset: 1px; }
+  .tabbar button:focus-visible { outline-offset: -3px; border-radius: 10px; }
 
   /* LH */
   .lh-options { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
-  .lh-option { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 9px 6px; border: 1.5px solid var(--blush); border-radius: 12px; cursor: pointer; transition: all 0.2s; background: var(--cream); }
-  .lh-option:hover { border-color: var(--primary); }
-  .lh-option.selected { border-color: var(--primary); background: rgba(181,87,60,0.08); }
+  .lh-option { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 9px 6px; border: 1.5px solid var(--blush); border-radius: 12px; cursor: pointer; transition: all 0.2s; background: var(--cream); appearance: none; -webkit-appearance: none; color: inherit; }
+  .lh-option:hover { border-color: var(--primary-ink); }
+  .lh-option.selected { border-color: var(--primary-ink); background: rgba(181,87,60,0.08); }
   .lh-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; }
   .lh-option[data-val="none"] .lh-dot { background: transparent; color: var(--blush); }
   .lh-option[data-val="low"]  .lh-dot { background: rgba(138,170,140,0.3); color: var(--sage); }
   .lh-option[data-val="high"] .lh-dot { background: rgba(196,122,90,0.4); color: var(--terracotta); }
   .lh-option[data-val="peak"] .lh-dot { background: var(--deep-rose); color: var(--deep-rose); }
-  .lh-label { font-size: 9px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mid); }
-  .lh-option.selected .lh-label { color: var(--primary); }
+  .lh-label { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mid); }
+  .lh-option.selected .lh-label { color: var(--primary-ink); }
 
   /* PERIOD + CHIPS */
   .period-row { display: flex; gap: 8px; flex-wrap: wrap; }
   .period-btn { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 9px 13px; border: 1.5px solid var(--blush); border-radius: 11px; cursor: pointer; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--mid); transition: all 0.2s; font-weight: 400; }
-  .period-btn.active { border-color: var(--primary); background: rgba(181,87,60,0.1); color: var(--primary); font-weight: 600; }
+  .period-btn.active { border-color: var(--primary-ink); background: rgba(181,87,60,0.1); color: var(--primary-ink); font-weight: 600; }
   .period-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.6; }
 
   /* INTIMACY CHIP */
   .intimacy-chip svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.7; }
   .intimacy-chip.active svg { fill: rgba(181,87,60,0.18); }
 
+  /* "THIS MORNING" — the two signals that drive the model */
+  .morning { background: rgba(181,87,60,0.05); border: 1px solid rgba(196,122,90,0.18); border-radius: 14px; padding: 15px 15px 16px; margin-bottom: 14px; }
+  .morning-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500; color: var(--charcoal); margin-bottom: 12px; }
+  #logTemp { font-size: 18px; font-weight: 500; }
+  .lh-option { min-height: 62px; font-family: 'DM Sans', sans-serif; }
+  .period-btn { min-height: 44px; }
+
+  /* "ADD MORE" progressive disclosure for optional fields */
+  .log-more { border: 1px solid var(--blush); border-radius: 12px; margin-bottom: 6px; background: var(--cream); }
+  .log-more > summary { list-style: none; cursor: pointer; padding: 12px 15px; font-size: 13px; font-weight: 600; color: var(--primary-ink); display: flex; align-items: center; gap: 8px; min-height: 46px; }
+  .log-more > summary::-webkit-details-marker { display: none; }
+  .log-more > summary .more-label { font-weight: 600; flex-shrink: 0; }
+  .log-more > summary .more-caption { color: var(--light-mid); font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .log-more > summary .more-sign { margin-left: auto; font-size: 20px; line-height: 1; color: var(--light-mid); transition: transform 0.2s; }
+  .log-more[open] > summary .more-sign { transform: rotate(45deg); }
+  .log-more-body { padding: 2px 15px 12px; }
+  .log-more-body .form-group:last-child { margin-bottom: 4px !important; }
+
   /* DATE STEPPER */
   .date-stepper { display: flex; align-items: stretch; gap: 6px; }
   .date-stepper input[type="date"] { flex: 1; min-width: 0; }
-  .date-step-btn { width: 44px; min-height: 44px; flex-shrink: 0; border: 1.5px solid var(--blush); border-radius: 10px; background: var(--cream); color: var(--primary); font-size: 22px; line-height: 1; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-  .date-step-btn:hover { border-color: var(--primary); background: rgba(181,87,60,0.06); }
+  .date-step-btn { width: 44px; min-height: 44px; flex-shrink: 0; border: 1.5px solid var(--blush); border-radius: 10px; background: var(--cream); color: var(--primary-ink); font-size: 22px; line-height: 1; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+  .date-step-btn:hover { border-color: var(--primary-ink); background: rgba(181,87,60,0.06); }
   .date-step-btn:active { transform: scale(0.94); }
 
   .btn-save { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 12px; color: white; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.04em; margin-top: 8px; transition: all 0.25s; min-height: 48px; box-shadow: 0 6px 18px rgba(181,87,60,0.22); }
-  /* Only the Log form's Save button sticks above the tab bar */
-  #saveBtn { position: sticky; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 5; }
+  /* Save sits at the end of the (now compact) form — the collapsible optional
+     fields keep it reachable without a sticky bar that overlapped content. */
   .btn-save:hover { opacity: 0.9; }
   .btn-save:active { transform: scale(0.99); }
   .btn-save.locked { background: rgba(122,95,84,0.1); color: var(--sage); border: 1.5px solid rgba(138,170,140,0.4); cursor: default; opacity: 1; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 7px; }
   .btn-save.locked:hover { opacity: 1; }
   .form-locked input, .form-locked select, .form-locked textarea { opacity: 0.45; pointer-events: none; }
   .form-locked .lh-option, .form-locked .period-btn { opacity: 0.45; pointer-events: none; cursor: default; }
-  .edit-entry-link { display: block; text-align: center; margin-top: 8px; font-size: 11px; color: var(--light-mid); cursor: pointer; letter-spacing: 0.04em; }
-  .edit-entry-link:hover { color: var(--terracotta); }
+  .edit-entry-link { display: flex; align-items: center; justify-content: center; text-align: center; margin-top: 8px; font-size: 13px; color: var(--primary-ink); cursor: pointer; letter-spacing: 0.02em; text-decoration: underline; text-underline-offset: 3px; font-weight: 500; min-height: 44px; }
+  .edit-entry-link:hover { color: var(--deep-rose); }
 
   /* CALENDAR */
   .cycle-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .cycle-nav button { background: var(--paper); border: 1px solid var(--blush); border-radius: 8px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--mid); cursor: pointer; }
   .month-label { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 400; color: var(--charcoal); }
   .cycle-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-bottom: 14px; }
-  .cycle-day-header { text-align: center; font-size: 9px; font-weight: 500; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 3px; }
-  .cycle-day { aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all 0.15s; border: 1.5px solid transparent; background: rgba(196,122,90,0.05); position: relative; }
+  .cycle-day-header { text-align: center; font-size: 11px; font-weight: 500; color: var(--light-mid); letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 3px; }
+  .cycle-day { aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all 0.15s; border: 1.5px solid transparent; background: rgba(196,122,90,0.05); position: relative; appearance: none; -webkit-appearance: none; font-family: 'DM Sans', sans-serif; color: var(--ink); padding: 0; width: 100%; }
   .cycle-day:hover { border-color: var(--blush); }
   .cycle-day .day-num { font-weight: 500; line-height: 1; }
   .cycle-day .day-dots { display: flex; gap: 2px; margin-top: 2px; }
   .dd { width: 3px; height: 3px; border-radius: 50%; }
-  .cycle-day .day-heart { line-height: 1; margin-top: 2px; color: var(--primary); }
+  .cycle-day .day-heart { line-height: 1; margin-top: 2px; color: var(--primary-ink); }
   .cycle-day .day-heart svg { display: block; width: 9px; height: 9px; }
   .cycle-day.is-period  { background: var(--terracotta); }
   .cycle-day.is-period .day-num { color: #fff; }
@@ -157,18 +180,18 @@
   .cycle-day.is-today   { border: 2px solid var(--phone-dark) !important; }
   .cycle-day.future { opacity: 0.44; }
   .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--mid); }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--mid); }
   .legend-swatch { width: 9px; height: 9px; border-radius: 3px; }
 
   /* TAGS */
-  .tag { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+  .tag { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
   .tag-period  { background: rgba(196,122,90,0.14); color: var(--terracotta); }
   .tag-lh-none { background: rgba(122,95,84,0.1); color: var(--mid); }
   .tag-lh-low  { background: rgba(138,170,140,0.2); color: var(--sage); }
   .tag-lh-high { background: rgba(196,122,90,0.2); color: var(--terracotta); }
   .tag-lh-peak { background: rgba(158,79,59,0.14); color: var(--deep-rose); }
   .tag-temp    { background: rgba(196,122,90,0.1); color: var(--terracotta); }
-  .tag-intimacy { background: rgba(181,87,60,0.12); color: var(--primary); display: inline-flex; align-items: center; gap: 3px; }
+  .tag-intimacy { background: rgba(181,87,60,0.12); color: var(--primary-ink); display: inline-flex; align-items: center; gap: 3px; }
   .tag-intimacy svg { width: 10px; height: 10px; }
 
   /* HISTORY (cards) */
@@ -177,19 +200,19 @@
   .log-entry:active { transform: scale(0.995); }
   .log-entry.dim { opacity: 0.6; }
   .log-date-col { flex-shrink: 0; text-align: center; width: 40px; }
-  .ld-day { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 400; color: var(--primary); line-height: 1; }
-  .ld-mon { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--light-mid); margin-top: 2px; }
+  .ld-day { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 400; color: var(--primary-ink); line-height: 1; }
+  .ld-mon { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--light-mid); margin-top: 2px; }
   .log-data { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .log-tags { display: flex; gap: 5px; flex-wrap: wrap; }
   .log-note { font-size: 12px; color: var(--mid); font-style: italic; line-height: 1.5; }
-  .delete-btn { background: none; border: none; color: var(--blush); cursor: pointer; font-size: 13px; padding: 4px 6px; transition: color 0.2s; align-self: center; min-height: 30px; }
-  .delete-btn:hover { color: var(--primary); }
+  .delete-btn { background: none; border: none; color: var(--light-mid); cursor: pointer; font-size: 15px; padding: 4px 8px; transition: color 0.2s; align-self: center; min-height: 44px; min-width: 44px; }
+  .delete-btn:hover { color: var(--deep-rose); }
 
   /* INSIGHTS */
   .insight-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
   .insight-tile { background: var(--paper); border: 1px solid rgba(196,122,90,0.16); border-radius: 14px; padding: 13px; text-align: center; }
   .i-val { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 300; color: var(--deep-rose); line-height: 1; }
-  .i-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--light-mid); margin-top: 3px; }
+  .i-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--light-mid); margin-top: 3px; }
 
   /* SYNC STATUS CARD */
   .sync-status-card { display: flex; align-items: center; gap: 13px; padding: 15px 17px; margin-bottom: 14px; border-radius: 16px; background: rgba(111,160,124,0.10); border: 1px solid rgba(111,160,124,0.30); }
@@ -209,32 +232,32 @@
   .settings-row select { width: 138px; }
   .data-actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .btn-outline { padding: 8px 14px; border: 1.5px solid var(--blush); border-radius: 10px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--mid); cursor: pointer; transition: all 0.2s; font-weight: 500; }
-  .btn-outline:hover { border-color: var(--terracotta); color: var(--terracotta); }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary-ink); }
   .btn-outline.danger:hover { border-color: #c0392b; color: #c0392b; }
 
   /* SYNC PANEL */
   .sync-panel { background: var(--warm-white); border: 1px solid rgba(196,122,90,0.18); border-radius: 18px; padding: 18px 20px; margin-bottom: 14px; }
-  .sync-panel h3 { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 400; color: var(--charcoal); margin-bottom: 3px; }
+  .sync-panel h2 { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 400; color: var(--charcoal); margin-bottom: 3px; }
   .sync-panel p { font-size: 12px; color: var(--mid); line-height: 1.65; margin-bottom: 13px; }
   .sync-row { display: flex; gap: 8px; }
   .sync-row input { flex: 1; }
-  .sync-row button { padding: 9px 16px; background: var(--terracotta); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; font-weight: 500; white-space: nowrap; }
+  .sync-row button { padding: 9px 16px; background: var(--primary); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; font-weight: 500; white-space: nowrap; }
   .sync-row button:hover { background: var(--deep-rose); }
   .sync-code-display { margin-top: 10px; padding: 9px 13px; background: var(--paper); border-radius: 10px; border: 1px dashed var(--blush); font-size: 12px; color: var(--mid); display: none; }
   .sync-code-display span { font-family: monospace; font-size: 14px; color: var(--deep-rose); font-weight: 600; letter-spacing: 0.08em; }
   .sync-status { margin-top: 9px; font-size: 12px; color: var(--mid); min-height: 17px; }
   .sync-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; display: none; }
   .sync-btns button { padding: 7px 13px; border: 1.5px solid var(--blush); border-radius: 10px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--mid); cursor: pointer; transition: all 0.2s; font-weight: 500; }
-  .sync-btns button:hover { border-color: var(--terracotta); color: var(--terracotta); }
-  .sync-btns button.primary { background: linear-gradient(135deg,var(--terracotta),var(--deep-rose)); color: white; border: none; }
+  .sync-btns button:hover { border-color: var(--primary); color: var(--primary-ink); }
+  .sync-btns button.primary { background: var(--primary); color: white; border: none; }
   .sync-btns button.primary:hover { opacity: 0.88; }
   .sync-step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
-  .sync-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--terracotta); color: white; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .sync-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: white; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
   .sync-step-label { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
   .sync-step-sub { font-size: 11px; color: var(--mid); line-height: 1.55; }
 
   /* TOAST */
-  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--charcoal); color: white; padding: 9px 20px; border-radius: 30px; font-size: 13px; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 100; pointer-events: none; white-space: nowrap; }
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--charcoal); color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; transition: transform 0.34s cubic-bezier(0.22,1,0.36,1); z-index: 100; pointer-events: none; white-space: nowrap; }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
   .section { display: none; }
@@ -261,17 +284,93 @@
   .pred-day-bar-wrap { flex:1; height:8px; background:rgba(196,122,90,0.08); border-radius:4px; overflow:hidden; }
   .pred-day-bar { height:100%; border-radius:4px; transition:width 0.4s; }
   .pred-day-pct { font-size:12px; font-weight:500; width:36px; text-align:right; flex-shrink:0; }
-  .pred-day-label { font-size:10px; color:var(--light-mid); width:60px; text-align:right; flex-shrink:0; }
+  .pred-day-label { font-size:11px; color:var(--light-mid); width:60px; text-align:right; flex-shrink:0; }
   .pred-past-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(196,122,90,0.08); font-size:13px; }
   .pred-past-row:last-child { border-bottom:none; }
   .pred-past-cycle { font-family:'Fraunces',serif; font-size:16px; color:var(--mid); width:80px; flex-shrink:0; }
   .pred-past-detail { flex:1; color:var(--ink); font-size:12px; line-height:1.5; }
-  .pred-past-badge { font-size:9px; font-weight:600; padding:2px 7px; border-radius:10px; text-transform:uppercase; letter-spacing:0.05em; flex-shrink:0; }
+  .pred-past-badge { font-size:11px; font-weight:600; padding:2px 7px; border-radius:10px; text-transform:uppercase; letter-spacing:0.05em; flex-shrink:0; }
   .badge-confirmed { background:rgba(100,160,110,0.2); color:#3a7a4a; }
   .badge-lh { background:rgba(158,79,59,0.12); color:var(--deep-rose); }
   .badge-estimated { background:rgba(196,122,90,0.12); color:var(--mid); }
 
-  
+  /* ═══════════════ PREGNANCY MODE ═══════════════ */
+  /* Accent shifts terracotta → sage; cycle components reused via variable overrides */
+  body.preg {
+    /* #7C8B5E is too light to carry white text at AA (3.4:1); deepen the text-bearing sage to #66744A (~4.9:1) */
+    --primary: #66744A; --primary-ink: #4F5B3A;
+    --terracotta: #66744A; --deep-rose: #4F5B3A;
+    --paper: #EEF1E7;
+  }
+  /* Re-route the hardcoded terracotta tints/shadows to sage in pregnancy mode */
+  body.preg .period-btn.active { background: rgba(102,116,74,0.14); }
+  body.preg .btn-save { box-shadow: 0 6px 18px rgba(79,91,58,0.26); }
+  /* Mode-scoped visibility */
+  body.preg .cycle-only { display: none !important; }
+  body:not(.preg) .preg-only { display: none !important; }
+  .preg-hint { color: var(--light-mid); }
+
+  /* Full-screen confirmation moment */
+  .preg-confirm { position: fixed; inset: 0; z-index: 300; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px 26px calc(32px + env(safe-area-inset-bottom)); overflow: hidden; background: linear-gradient(160deg, #66744A, #55643F); color: #FBF7F2; }
+  .preg-confirm.open { display: flex; }
+  .preg-confirm .pc-circle-bg::before, .preg-confirm .pc-circle-bg::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,0.09); pointer-events: none; }
+  .preg-confirm .pc-circle-bg::before { width: 260px; height: 260px; top: -90px; right: -90px; }
+  .preg-confirm .pc-circle-bg::after  { width: 200px; height: 200px; bottom: -70px; left: -80px; background: rgba(255,255,255,0.07); }
+  .pc-heart { position: relative; width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.16); display: flex; align-items: center; justify-content: center; margin-bottom: 22px; }
+  .pc-heart svg { width: 38px; height: 38px; fill: #FBF7F2; }
+  .preg-confirm h2 { position: relative; font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; font-size: 29px; color: #FBF7F2; margin-bottom: 14px; }
+  .preg-confirm p { position: relative; font-size: 14px; line-height: 1.6; max-width: 320px; opacity: 0.94; margin-bottom: 22px; }
+  .pc-field { position: relative; width: 100%; max-width: 320px; text-align: left; margin-bottom: 24px; }
+  .pc-field label { color: rgba(251,247,242,0.92); font-size: 11px; }
+  .pc-field input[type="date"] { width: 100%; margin-top: 6px; background: rgba(255,255,255,0.14); border: 1.5px solid rgba(255,255,255,0.4); color: #FBF7F2; border-radius: 10px; padding: 11px 13px; font-family: 'DM Sans', sans-serif; font-size: 15px; }
+  .pc-field .pc-caption { display: block; margin-top: 6px; font-size: 12px; color: rgba(251,247,242,0.8); text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .pc-primary { position: relative; width: 100%; max-width: 320px; padding: 15px; border: none; border-radius: 13px; background: #FBF7F2; color: #4F5B3A; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; min-height: 50px; box-shadow: 0 8px 22px rgba(0,0,0,0.14); }
+  .pc-primary:active { transform: scale(0.99); }
+  .pc-secondary { position: relative; margin-top: 18px; background: none; border: none; color: rgba(251,247,242,0.9); font-family: 'DM Sans', sans-serif; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 44px; }
+
+  /* Pregnancy hero (sage, same shape as cycle hero) */
+  .preg-hero .hero-wordmark { display: flex; align-items: center; gap: 8px; }
+  .preg-hero .hero-wordmark svg { width: 18px; height: 18px; fill: rgba(255,255,255,0.9); }
+
+  /* Milestone / size card */
+  .milestone-card { display: flex; gap: 16px; align-items: center; }
+  .milestone-emoji { width: 60px; height: 60px; border-radius: 16px; background: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+  .milestone-size { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 500; color: var(--charcoal); line-height: 1.15; }
+  .milestone-note { font-size: 13px; color: var(--mid); line-height: 1.5; margin-top: 4px; }
+
+  /* Resource link cards */
+  .res-link { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border: 1px solid rgba(124,139,94,0.22); border-radius: 13px; margin-bottom: 9px; text-decoration: none; background: var(--warm-white); transition: border-color 0.2s, transform 0.1s; }
+  .res-link:hover { border-color: rgba(124,139,94,0.5); }
+  .res-link:active { transform: scale(0.995); }
+  .res-body { flex: 1; min-width: 0; }
+  .res-label { font-size: 13px; font-weight: 500; color: var(--ink); line-height: 1.35; }
+  .res-source { font-size: 11px; color: var(--primary-ink); font-weight: 600; margin-top: 2px; }
+  .res-arrow { color: var(--light-mid); flex-shrink: 0; }
+  .res-arrow svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .care-note { font-size: 12px; color: var(--mid); line-height: 1.55; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(124,139,94,0.16); }
+
+  /* Week list cards */
+  .week-card { display: flex; gap: 15px; align-items: center; padding: 14px 15px; margin-bottom: 10px; background: var(--warm-white); border: 1px solid rgba(124,139,94,0.18); border-radius: 16px; box-shadow: 0 2px 12px rgba(94,107,69,0.04); }
+  .week-card.current { background: var(--primary); border-color: var(--primary); }
+  .week-card.current .wk-num, .week-card.current .wk-size, .week-card.current .wk-note { color: #FBF7F2; }
+  .week-card.current .wk-milestone { background: rgba(255,255,255,0.2); color: #FBF7F2; }
+  .week-card.future { opacity: 0.5; }
+  .wk-numcol { width: 54px; flex-shrink: 0; text-align: center; }
+  .wk-num { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 400; color: var(--primary-ink); line-height: 1; }
+  .wk-numlabel { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--light-mid); margin-top: 2px; }
+  .wk-body { flex: 1; min-width: 0; }
+  .wk-size { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .wk-note { font-size: 12px; color: var(--mid); line-height: 1.45; margin-top: 3px; }
+  .wk-milestone { display: inline-block; margin-top: 7px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 10px; background: var(--paper); color: var(--primary-ink); }
+
+  /* Pregnancy log chips + quiet-exit card */
+  .preg-log-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .quiet-exit { border: 1px solid rgba(196,122,90,0.16); border-radius: 16px; padding: 17px 18px; background: var(--warm-white); }
+  .quiet-exit .card-title { font-size: 17px; }
+  .quiet-exit p { font-size: 13px; color: var(--mid); line-height: 1.6; margin: 6px 0 14px; }
+  .settings-divider { height: 1px; background: rgba(196,122,90,0.16); margin: 20px 2px 16px; }
+
+
 </style>
 </head>
 <body>
@@ -306,7 +405,7 @@
       <div class="days-to" id="daysToLabel"></div>
     </div>
   </div>
-  <div class="graph-wrap" id="graphWrap"><canvas id="mainChart"></canvas></div>
+  <div class="graph-wrap" id="graphWrap"><canvas id="mainChart" role="img" aria-label="Basal body temperature chart with your fertile window and ovulation marked. Your cycle status is shown in the banner above."></canvas></div>
   <div class="graph-legend">
     <div class="gl"><div class="gl-swatch" style="background:rgba(100,160,110,0.55)"></div>Fertile window</div>
     <div class="gl"><div class="gl-swatch" style="background:rgba(100,160,110,0.28);border:1px solid rgba(80,140,90,0.5)"></div>Ovulation probability</div>
@@ -322,77 +421,91 @@
   <div class="card" id="logCard">
     <div class="card-title">Today's Log</div>
     <div class="card-sub" id="todayDateLabel"></div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Date</label>
-        <div class="date-stepper">
-          <button type="button" class="date-step-btn" aria-label="Previous day" onclick="stepLogDate(-1)">‹</button>
-          <input type="date" id="logDate">
-          <button type="button" class="date-step-btn" aria-label="Next day" onclick="stepLogDate(1)">›</button>
+    <div class="form-group" style="margin-bottom:14px">
+      <label for="logDate">Date</label>
+      <div class="date-stepper">
+        <button type="button" class="date-step-btn" aria-label="Previous day" onclick="stepLogDate(-1)">‹</button>
+        <input type="date" id="logDate">
+        <button type="button" class="date-step-btn" aria-label="Next day" onclick="stepLogDate(1)">›</button>
+      </div>
+    </div>
+
+    <!-- The two signals the whole prediction runs on -->
+    <div class="morning">
+      <div class="morning-title">This morning</div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label for="logTemp">BBT Temp (°F)</label>
+        <input type="number" id="logTemp" step="0.01" min="96" max="100" inputmode="decimal" placeholder="98.66" oninput="updateTempHint()">
+        <div id="tempHint" role="status" aria-live="polite" style="min-height:16px;font-size:12px;font-weight:500;letter-spacing:.03em;transition:color .2s"></div>
+      </div>
+      <div class="form-group" role="group" aria-label="LH strip result">
+        <label>LH Strip Result</label>
+        <div class="lh-options">
+          <button type="button" class="lh-option selected" data-val="none" aria-pressed="true"  onclick="selectLH(this)"><span class="lh-dot"></span><span class="lh-label">None</span></button>
+          <button type="button" class="lh-option"          data-val="low"  aria-pressed="false" onclick="selectLH(this)"><span class="lh-dot"></span><span class="lh-label">Low</span></button>
+          <button type="button" class="lh-option"          data-val="high" aria-pressed="false" onclick="selectLH(this)"><span class="lh-dot"></span><span class="lh-label">High</span></button>
+          <button type="button" class="lh-option"          data-val="peak" aria-pressed="false" onclick="selectLH(this)"><span class="lh-dot"></span><span class="lh-label">Peak ⚡</span></button>
         </div>
       </div>
-      <div class="form-group">
-        <label>BBT Temp (°F)</label>
-        <input type="number" id="logTemp" step="0.01" min="96" max="100" placeholder="98.66" oninput="updateTempHint()">
-        <div id="tempHint" style="min-height:16px;font-size:11px;font-weight:500;letter-spacing:.03em;transition:color .2s"></div>
-      </div>
     </div>
-    <div class="form-group" style="margin-bottom:13px">
-      <label>LH Strip Result</label>
-      <div class="lh-options">
-        <div class="lh-option" data-val="none" onclick="selectLH(this)"><div class="lh-dot"></div><div class="lh-label">None</div></div>
-        <div class="lh-option" data-val="low"  onclick="selectLH(this)"><div class="lh-dot"></div><div class="lh-label">Low</div></div>
-        <div class="lh-option" data-val="high" onclick="selectLH(this)"><div class="lh-dot"></div><div class="lh-label">High</div></div>
-        <div class="lh-option" data-val="peak" onclick="selectLH(this)"><div class="lh-dot"></div><div class="lh-label">Peak ⚡</div></div>
-      </div>
-    </div>
-    <div class="form-group" style="margin-bottom:13px">
+
+    <div class="form-group" role="group" aria-label="Period or flow" style="margin-bottom:13px">
       <label>Period / Flow</label>
-      <div class="period-row">
-        <button class="period-btn" data-val="none"     onclick="selectPeriod(this)"><div class="period-dot" style="background:var(--blush)"></div>None</button>
-        <button class="period-btn" data-val="spotting" onclick="selectPeriod(this)"><div class="period-dot" style="background:#e8a87c"></div>Spotting</button>
-        <button class="period-btn" data-val="light"    onclick="selectPeriod(this)"><div class="period-dot" style="background:var(--terracotta)"></div>Light</button>
-        <button class="period-btn" data-val="medium"   onclick="selectPeriod(this)"><div class="period-dot" style="background:#b05a3a"></div>Medium</button>
-        <button class="period-btn" data-val="heavy"    onclick="selectPeriod(this)"><div class="period-dot" style="background:var(--deep-rose)"></div>Heavy</button>
+      <div class="period-row" id="flowBtns">
+        <button type="button" class="period-btn active" data-val="none" aria-pressed="true"  onclick="selectPeriod(this)"><span class="period-dot" style="background:var(--blush)"></span>None</button>
+        <button type="button" class="period-btn" data-val="spotting" aria-pressed="false" onclick="selectPeriod(this)"><span class="period-dot" style="background:#e8a87c"></span>Spotting</button>
+        <button type="button" class="period-btn" data-val="light"    aria-pressed="false" onclick="selectPeriod(this)"><span class="period-dot" style="background:var(--terracotta)"></span>Light</button>
+        <button type="button" class="period-btn" data-val="medium"   aria-pressed="false" onclick="selectPeriod(this)"><span class="period-dot" style="background:#b05a3a"></span>Medium</button>
+        <button type="button" class="period-btn" data-val="heavy"    aria-pressed="false" onclick="selectPeriod(this)"><span class="period-dot" style="background:var(--deep-rose)"></span>Heavy</button>
       </div>
     </div>
-    <div class="form-group" style="margin-bottom:13px">
-      <label>Intimacy (optional)</label>
-      <div class="period-row">
-        <button class="period-btn intimacy-chip" id="intimacyChip" onclick="toggleIntimacy()">
-          <svg viewBox="0 0 24 24"><path d="M12 20.5s-7-4.35-9.3-8.3C1 9.5 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.6 3.5 2.9 6.2C19 16.15 12 20.5 12 20.5Z"/></svg>
-          <span id="intimacyLabel">Intimacy</span>
-        </button>
+
+    <details class="log-more">
+      <summary><span class="more-label">Add more</span><span class="more-caption">intimacy · mucus · symptoms · notes</span><span class="more-sign" aria-hidden="true">+</span></summary>
+      <div class="log-more-body">
+        <div class="form-group" role="group" aria-label="Intimacy" style="margin-bottom:13px">
+          <label>Intimacy (optional)</label>
+          <div class="period-row">
+            <button type="button" class="period-btn intimacy-chip" id="intimacyChip" aria-pressed="false" onclick="toggleIntimacy()">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7-4.35-9.3-8.3C1 9.5 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.6 3.5 2.9 6.2C19 16.15 12 20.5 12 20.5Z"/></svg>
+              <span id="intimacyLabel">Intimacy</span>
+            </button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:13px">
+          <label for="logCM">Cervical Mucus (optional)</label>
+          <select id="logCM">
+            <option value="">— Not tracked —</option>
+            <option value="dry">Dry</option><option value="sticky">Sticky</option>
+            <option value="creamy">Creamy</option><option value="watery">Watery</option>
+            <option value="egg-white">Egg White (EWCM)</option>
+          </select>
+        </div>
+        <div class="form-group" role="group" aria-label="Symptoms" style="margin-bottom:13px">
+          <label>Symptoms (optional)</label>
+          <div class="period-row" id="symptomBtns">
+            <button type="button" class="period-btn" data-val="cramps"            aria-pressed="false" onclick="toggleSymptom(this)">Cramps</button>
+            <button type="button" class="period-btn" data-val="bloating"          aria-pressed="false" onclick="toggleSymptom(this)">Bloating</button>
+            <button type="button" class="period-btn" data-val="breast-tenderness" aria-pressed="false" onclick="toggleSymptom(this)">Breast Tender</button>
+            <button type="button" class="period-btn" data-val="mood-swings"       aria-pressed="false" onclick="toggleSymptom(this)">Mood Swings</button>
+            <button type="button" class="period-btn" data-val="headache"          aria-pressed="false" onclick="toggleSymptom(this)">Headache</button>
+            <button type="button" class="period-btn" data-val="nausea"            aria-pressed="false" onclick="toggleSymptom(this)">Nausea</button>
+            <button type="button" class="period-btn" data-val="fatigue"           aria-pressed="false" onclick="toggleSymptom(this)">Fatigue</button>
+            <button type="button" class="period-btn" data-val="high-sex-drive"    aria-pressed="false" onclick="toggleSymptom(this)">↑ Sex Drive</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="logNote">Notes</label>
+          <textarea id="logNote" placeholder="How are you feeling today?"></textarea>
+        </div>
       </div>
-    </div>
-    <div class="form-group" style="margin-bottom:13px">
-      <label>Cervical Mucus (optional)</label>
-      <select id="logCM">
-        <option value="">— Not tracked —</option>
-        <option value="dry">Dry</option><option value="sticky">Sticky</option>
-        <option value="creamy">Creamy</option><option value="watery">Watery</option>
-        <option value="egg-white">Egg White (EWCM)</option>
-      </select>
-    </div>
-    <div class="form-group" style="margin-bottom:13px">
-      <label>Symptoms (optional)</label>
-      <div class="period-row" id="symptomBtns">
-        <button class="period-btn" data-val="cramps"            onclick="toggleSymptom(this)">Cramps</button>
-        <button class="period-btn" data-val="bloating"          onclick="toggleSymptom(this)">Bloating</button>
-        <button class="period-btn" data-val="breast-tenderness" onclick="toggleSymptom(this)">Breast Tender</button>
-        <button class="period-btn" data-val="mood-swings"       onclick="toggleSymptom(this)">Mood Swings</button>
-        <button class="period-btn" data-val="headache"          onclick="toggleSymptom(this)">Headache</button>
-        <button class="period-btn" data-val="nausea"            onclick="toggleSymptom(this)">Nausea</button>
-        <button class="period-btn" data-val="fatigue"           onclick="toggleSymptom(this)">Fatigue</button>
-        <button class="period-btn" data-val="high-sex-drive"    onclick="toggleSymptom(this)">↑ Sex Drive</button>
-      </div>
-    </div>
-    <div class="form-group" style="margin-bottom:13px">
-      <label>Notes</label>
-      <textarea id="logNote" placeholder="How are you feeling today?"></textarea>
-    </div>
+    </details>
+
     <button class="btn-save" id="saveBtn" onclick="saveEntry()">Save Today's Log</button>
-    <div class="edit-entry-link" id="editEntryLink" style="display:none" onclick="unlockForm()">Edit entry</div>
+    <div class="edit-entry-link" id="editEntryLink" style="display:none" onclick="unlockForm()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();unlockForm();}" role="button" tabindex="0">Edit entry</div>
+  </div>
+  <div style="text-align:center;margin-top:2px">
+    <button type="button" onclick="openPregConfirm()" style="background:none;border:none;color:var(--primary-ink);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;min-height:44px;padding:0 12px">＋ Log a positive pregnancy test</button>
   </div>
 </div>
 
@@ -440,6 +553,7 @@
     <div style="margin-top:14px">
       <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--deep-rose);line-height:1.1" id="pred-headline">—</div>
       <div style="font-size:12px;color:var(--mid);margin-top:5px;line-height:1.6" id="pred-subline"></div>
+      <div id="pred-lh-note" style="display:none;margin-top:11px;padding:9px 12px;border-radius:11px;font-size:12px;line-height:1.5"></div>
     </div>
   </div>
 
@@ -451,7 +565,7 @@
         <div class="graph-sub" id="pred-curve-sub">Current cycle · days from period start</div>
       </div>
     </div>
-    <div class="graph-wrap" style="cursor:default"><canvas id="predChart" style="display:block;width:100%"></canvas></div>
+    <div class="graph-wrap" style="cursor:default"><canvas id="predChart" role="img" aria-label="Ovulation probability curve for this cycle. The prediction summary is stated in words above." style="display:block;width:100%"></canvas></div>
     <div class="graph-legend" style="margin-top:6px">
       <div class="gl"><div class="gl-dot" style="background:rgba(100,160,110,0.7)"></div>Probability of ovulation</div>
       <div class="gl"><div class="gl-dot" style="background:var(--deep-rose)"></div>LH peak logged</div>
@@ -498,7 +612,7 @@
     </div>
   </div>
   <div class="sync-panel" id="syncAnchor">
-    <h3>Sync Across Devices</h3>
+    <h2>Sync Across Devices</h2>
     <p>Bloom uses <strong>JSONBin</strong> for free, real-time sync across any device or browser. One-time setup takes about 60 seconds.</p>
 
     <div id="syncSetupSteps">
@@ -535,7 +649,7 @@
     <div class="sync-code-display" id="syncCodeDisplay">Connected · bin for <span id="syncCodeLabel"></span></div>
     <div id="syncBinIdDisplay" style="display:none;margin-top:8px;padding:9px 13px;background:var(--paper);border-radius:10px;border:1px dashed var(--blush);font-size:11px;color:var(--mid)">
       Bin ID: <span id="syncBinIdLabel" style="font-family:monospace;font-size:12px;color:var(--deep-rose);word-break:break-all"></span>
-      <div style="margin-top:6px;font-size:10px;color:var(--light-mid)">Share this with other devices if Pull isn't finding the bin automatically</div>
+      <div style="margin-top:6px;font-size:11px;color:var(--light-mid)">Share this with other devices if Pull isn't finding the bin automatically</div>
     </div>
     <div style="display:none;margin-top:8px" id="manualBinIdWrap">
       <div style="font-size:11px;color:var(--mid);margin-bottom:5px">Or enter Bin ID manually:</div>
@@ -555,7 +669,17 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card preg-only">
+    <div class="card-title">Pregnancy</div>
+    <div class="card-sub">Your dates &amp; appointment</div>
+    <div class="settings-row"><label>First day of last period</label><input type="date" id="preg-lmp" onchange="updatePregDates()" style="width:180px"></div>
+    <div class="settings-row"><label>Estimated due date</label><span id="preg-due-readout" style="font-size:13px;color:var(--primary-ink);font-weight:600">—</span></div>
+    <div class="settings-row"><label>Next appointment</label><input type="date" id="preg-appt" onchange="savePregAppt()" style="width:180px"></div>
+    <div class="settings-row"><label>Track morning temperature</label><input type="checkbox" id="preg-bbt" onchange="savePregBbt()" style="width:20px;height:20px;accent-color:var(--primary)"></div>
+    <div style="font-size:12px;color:var(--mid);line-height:1.55;margin-top:8px">Off by default. Some people find continued temperatures reassuring — entirely optional.</div>
+  </div>
+
+  <div class="card cycle-only">
     <div class="card-title">Cycle Settings</div>
     <div class="card-sub">Customize predictions</div>
     <div class="settings-row"><label>Average Cycle Length (days)</label><input type="number" id="set-cycleLen" value="28" min="20" max="45"></div>
@@ -565,7 +689,7 @@
     <button class="btn-save" onclick="saveSettings()" style="margin-top:13px">Save Settings</button>
   </div>
 
-  <div class="card">
+  <div class="card cycle-only">
     <div class="card-title">Import from Natural Cycles</div>
     <div class="card-sub">One-time historical data import</div>
     <p style="font-size:12px;color:var(--mid);line-height:1.65;margin-bottom:14px">Select the <strong>measurements.json</strong> file from your Natural Cycles export. Existing Bloom entries on the same date are kept — imported data only fills in days you haven't logged yet.</p>
@@ -603,11 +727,103 @@
     <div class="card-sub">Privacy-first fertility tracking</div>
     <p style="font-size:12px;color:var(--mid);line-height:1.7">All data lives locally on your device. Sync is powered by JSONBin.io — your data is stored in a private bin accessible only with your API key and passphrase. Bloom is a companion tool, not a medical device. Always consult your healthcare provider.</p>
   </div>
+
+  <!-- Quiet exit — pregnancy mode only, Settings only -->
+  <div class="preg-only">
+    <div class="settings-divider"></div>
+    <div class="quiet-exit">
+      <div class="card-title">Update pregnancy status</div>
+      <p>If your circumstances change, you can quietly return to cycle tracking. Nothing is shared, and you won't be asked to explain.</p>
+      <button class="btn-outline" onclick="confirmReturnToCycle()">Return to cycle tracking</button>
+    </div>
+  </div>
 </div>
+
+<!-- ═══════════ PREGNANCY MODE CHROME ═══════════ -->
+<!-- Sage hero (Home) -->
+<div class="hero preg-hero" id="preg-hero" hidden>
+  <div class="hero-circles"></div>
+  <div class="hero-wordmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7-4.35-9.3-8.3C1 9.5 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.6 3.5 2.9 6.2C19 16.15 12 20.5 12 20.5Z"/></svg>Bloom</div>
+  <div class="hero-day"><strong id="pregWeekNum">—</strong></div>
+  <div class="hero-status" id="pregWeekSub">Loading…</div>
+</div>
+
+<!-- HOME -->
+<div id="sec-home" class="section">
+  <div class="card"><div class="milestone-card">
+    <div class="milestone-emoji" id="pregSizeEmoji">🌱</div>
+    <div><div class="milestone-size" id="pregSizeLabel">—</div><div class="milestone-note" id="pregSizeNote"></div></div>
+  </div></div>
+
+  <div class="insight-row">
+    <div class="insight-tile"><div class="i-val" style="font-size:20px" id="pregDueTile">—</div><div class="i-label">Est. Due Date</div></div>
+    <div class="insight-tile"><div class="i-val" style="font-size:20px" id="pregApptTile">—</div><div class="i-label">Next Appointment</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Log today</div>
+    <div class="card-sub" id="pregLogDate"></div>
+    <div class="form-group" role="group" aria-label="Symptoms" style="margin-bottom:13px">
+      <label>Symptoms</label>
+      <div class="period-row preg-log-chips" id="pregSymptomBtns">
+        <button type="button" class="period-btn" data-val="nausea"       aria-pressed="false" onclick="togglePregSymptom(this)">Nausea</button>
+        <button type="button" class="period-btn" data-val="fatigue"      aria-pressed="false" onclick="togglePregSymptom(this)">Fatigue</button>
+        <button type="button" class="period-btn" data-val="cravings"     aria-pressed="false" onclick="togglePregSymptom(this)">Cravings</button>
+        <button type="button" class="period-btn" data-val="heartburn"    aria-pressed="false" onclick="togglePregSymptom(this)">Heartburn</button>
+        <button type="button" class="period-btn" data-val="backache"     aria-pressed="false" onclick="togglePregSymptom(this)">Backache</button>
+        <button type="button" class="period-btn" data-val="movement"     aria-pressed="false" onclick="togglePregSymptom(this)">Felt movement</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:13px">
+      <label for="pregWeight">Weight (optional)</label>
+      <input type="number" id="pregWeight" step="0.1" inputmode="decimal" placeholder="lbs">
+    </div>
+    <div class="form-group" style="margin-bottom:13px">
+      <label for="pregNote">Notes</label>
+      <textarea id="pregNote" placeholder="How are you feeling today?"></textarea>
+    </div>
+    <button class="btn-save" onclick="savePregEntry()">Save today's entry</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">This stage</div>
+    <div class="card-sub" id="pregResTrimester">Resources for you</div>
+    <div id="pregResList"></div>
+    <div class="care-note">Your care team is your best source. Bring questions to Dr. Gavrilman.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recent entries</div>
+    <div class="card-sub">Your pregnancy journal</div>
+    <div id="pregRecentList"></div>
+    <div id="pregViewAllWrap" style="text-align:center;margin-top:6px"></div>
+  </div>
+</div>
+
+<!-- WEEKS -->
+<div id="sec-weeks" class="section">
+  <div id="pregWeeksList"></div>
+</div>
+
 </div><!-- /app -->
 
+<!-- Full-screen positive-test confirmation -->
+<div class="preg-confirm" id="pregConfirm" role="dialog" aria-modal="true" aria-labelledby="pcTitle">
+  <div class="pc-circle-bg"></div>
+  <div class="pc-heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7-4.35-9.3-8.3C1 9.5 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.6 3.5 2.9 6.2C19 16.15 12 20.5 12 20.5Z"/></svg></div>
+  <h2 id="pcTitle">Congratulations</h2>
+  <p>You've logged a positive test. Bloom will switch to pregnancy mode and pause cycle tracking.</p>
+  <div class="pc-field">
+    <label for="pcLmp">First day of last period</label>
+    <input type="date" id="pcLmp">
+    <span class="pc-caption">Used to estimate your due date.</span>
+  </div>
+  <button class="pc-primary" onclick="confirmPregnancy()">Begin pregnancy mode</button>
+  <button class="pc-secondary" onclick="cancelPregConfirm()">Not yet — keep tracking my cycle</button>
+</div>
+
 <!-- BOTTOM TAB BAR -->
-<nav class="tabbar">
+<nav class="tabbar" id="cycleTabbar">
   <button class="active" onclick="showSection('log')">
     <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Log
   </button>
@@ -625,7 +841,20 @@
   </button>
 </nav>
 
-<div class="toast" id="toast"></div>
+<!-- PREGNANCY TAB BAR (3 tabs) -->
+<nav class="tabbar" id="pregTabbar" hidden>
+  <button class="active" onclick="showPreg('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9"/><path d="M9 20v-6h6v6"/></svg>Home
+  </button>
+  <button onclick="showPreg('weeks')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18"/><path d="M8 2.5v4M16 2.5v4"/></svg>Weeks
+  </button>
+  <button onclick="showPreg('settings')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 0 1 0-4h.1A1.6 1.6 0 0 0 2.6 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H7a1.6 1.6 0 0 0 1-1.5V1a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V7a1.6 1.6 0 0 0 1.5 1H23a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>Settings
+  </button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h3 id="modalTitle">Are you sure?</h3>
@@ -648,10 +877,15 @@ const SYNC_KEY = 'bloom_sync_code';
 function getEntries() { try { return JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); } catch { return {}; } }
 function saveEntries(d) { localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
 function getSettings() {
-  const def = { cycleLen:28, luteal:14, lastPeriod:'', tempUnit:'F' };
+  const def = { cycleLen:28, luteal:14, lastPeriod:'', tempUnit:'F', mode:'cycle' };
   try { return { ...def, ...JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}') }; } catch { return def; }
 }
 function saveSettingsData(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+
+// Pregnancy-mode logs live in their own store so they can never corrupt cycle logic.
+const PREG_STORE_KEY = 'bloom_pregnancy_entries';
+function getPregEntries() { try { return JSON.parse(localStorage.getItem(PREG_STORE_KEY)||'{}'); } catch { return {}; } }
+function savePregEntries(d) { localStorage.setItem(PREG_STORE_KEY, JSON.stringify(d)); }
 
 // ══════════════════════════════════════
 //  CYCLE ANCHOR — single source of truth
@@ -690,6 +924,69 @@ function getCycleDay(dateStr) {
 }
 
 // ══════════════════════════════════════
+//  LH SURGE — relative to the user's own baseline
+// ══════════════════════════════════════
+// Interprets logged LH strip CATEGORIES (never numeric hormone values) against the
+// user's own recent readings, so an elevated baseline doesn't get mistaken for a surge —
+// while a genuine peak is ALWAYS honored, unconditionally.
+const LH_WEIGHT = { low: 1, high: 2, peak: 3 };
+
+function analyzeLHCurrentCycle(entries, cycleStart, today) {
+  entries = entries || getEntries();
+  today = today || new Date();
+  if (!cycleStart) return { status:'none', message:'' };
+
+  // Ordered list of logged LH days in the current cycle (skip none/unlogged)
+  const startD = new Date(cycleStart + 'T00:00:00');
+  const lhDays = [];
+  const d = new Date(startD);
+  while (d <= today) {
+    const ds = fmtDate(d), e = entries[ds], w = e && LH_WEIGHT[e.lh];
+    if (w) lhDays.push({ ds, cycleDay: Math.round((d - startD)/86400000)+1, lh: e.lh, w });
+    d.setDate(d.getDate()+1);
+  }
+  if (!lhDays.length) return { status:'none', message:'' };
+
+  const sparse = lhDays.length < 3; // too few to trust a personal baseline → face value
+
+  let surge = null, soft = null, consistentHigh = null;
+  for (let i = 0; i < lhDays.length; i++) {
+    const cur = lhDays[i];
+    // A logged PEAK is a confirmed surge, always — never suppressed by the baseline.
+    if (cur.lh === 'peak') { surge = { ...cur, reason:'peak' }; break; }
+    const prior = lhDays.slice(Math.max(0, i-14), i); // trailing ~14 logged LH days, excl. current
+    if (sparse || prior.length < 2) {
+      // Face-value fallback: treat a high as a soft/early signal, exactly as before.
+      if (cur.lh === 'high' && !soft) soft = { ...cur, reason:'face' };
+      continue;
+    }
+    const ref = prior.reduce((a,b)=>a+b.w,0) / prior.length;
+    const jump = cur.w - ref;
+    if (jump >= 2) { surge = { ...cur, reason:'jump' }; break; }        // ≥2 steps above own baseline
+    else if (cur.lh === 'high') {
+      if (jump >= 1) { if (!soft) soft = { ...cur, reason:'rise' }; }   // 1 step up → early rise
+      else if (!consistentHigh) consistentHigh = { ...cur, ref };      // high but in line with baseline
+    }
+  }
+
+  if (surge) return {
+    status:'surge', reason:surge.reason, day:surge.cycleDay, date:surge.ds,
+    message: surge.reason === 'peak'
+      ? 'LH peak logged — surge confirmed.'
+      : 'LH surge detected — a clear jump above your recent readings.'
+  };
+  if (soft) return {
+    status:'soft', day:soft.cycleDay, date:soft.ds,
+    message: 'LH is trending up — watching for a clearer surge.'
+  };
+  if (consistentHigh) return {
+    status:'consistent', day:consistentHigh.cycleDay,
+    message: 'LH high, but consistent with your recent readings — watching for a clearer surge.'
+  };
+  return { status:'none', message:'' };
+}
+
+// ══════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════
 let selectedLH = 'none', selectedPeriod = 'none', selectedSymptoms = new Set(), selectedIntimacy = false;
@@ -700,7 +997,7 @@ let syncCode = localStorage.getItem(SYNC_KEY) || '';
 //  INIT
 // ══════════════════════════════════════
 function init() {
-  const today = new Date(), todayStr = fmtDate(today);
+  const today = new Date(fmtDate(new Date())+'T00:00:00'), todayStr = fmtDate(today);
   document.getElementById('logDate').value = todayStr;
   document.getElementById('logDate').addEventListener('change', () => {
     loadLogDate(document.getElementById('logDate').value);
@@ -725,6 +1022,7 @@ function init() {
   renderHistory();
   renderInsights(); // keep insights running for internal use
   renderSyncStatusCard();
+  applyMode(s.mode || 'cycle'); // enter pregnancy mode on load if that's the saved state
 }
 
 function setLogLockState(entry) {
@@ -767,9 +1065,9 @@ function populateForm(e) {
   if (e.temp)  document.getElementById('logTemp').value = e.temp;
   if (e.cm)    document.getElementById('logCM').value = e.cm;
   if (e.notes) document.getElementById('logNote').value = e.notes;
-  if (e.lh)    { selectedLH = e.lh; document.querySelectorAll('.lh-option').forEach(el=>el.classList.toggle('selected',el.dataset.val===e.lh)); }
-  if (e.period){ selectedPeriod=e.period; document.querySelectorAll('.period-btn').forEach(el=>el.classList.toggle('active',el.dataset.val===e.period)); }
-  if (e.symptoms) { selectedSymptoms=new Set(e.symptoms); document.querySelectorAll('#symptomBtns .period-btn').forEach(el=>el.classList.toggle('active',selectedSymptoms.has(el.dataset.val))); }
+  if (e.lh)    { selectedLH = e.lh; document.querySelectorAll('.lh-option').forEach(el=>{const on=el.dataset.val===e.lh; el.classList.toggle('selected',on); setPressed(el,on);}); }
+  if (e.period){ selectedPeriod=e.period; document.querySelectorAll('#flowBtns .period-btn').forEach(el=>{const on=el.dataset.val===e.period; el.classList.toggle('active',on); setPressed(el,on);}); }
+  if (e.symptoms) { selectedSymptoms=new Set(e.symptoms); document.querySelectorAll('#symptomBtns .period-btn').forEach(el=>{const on=selectedSymptoms.has(el.dataset.val); el.classList.toggle('active',on); setPressed(el,on);}); }
   setIntimacy(!!e.intimacy);
 }
 
@@ -777,6 +1075,7 @@ function setIntimacy(on) {
   selectedIntimacy = on;
   const chip = document.getElementById('intimacyChip');
   chip.classList.toggle('active', on);
+  setPressed(chip, on);
   document.getElementById('intimacyLabel').textContent = on ? 'Logged' : 'Intimacy';
 }
 function toggleIntimacy() { setIntimacy(!selectedIntimacy); }
@@ -810,16 +1109,21 @@ function showSection(name) {
 // ══════════════════════════════════════
 //  FORM
 // ══════════════════════════════════════
-function selectLH(el) { selectedLH=el.dataset.val; document.querySelectorAll('.lh-option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); }
+function setPressed(el, on) { if (el) el.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+function selectLH(el) {
+  selectedLH = el.dataset.val;
+  document.querySelectorAll('.lh-option').forEach(o => { const on = o === el; o.classList.toggle('selected', on); setPressed(o, on); });
+}
 function selectPeriod(el) {
-  const v=el.dataset.val;
-  if (selectedPeriod===v) { selectedPeriod='none'; el.classList.remove('active'); }
-  else { selectedPeriod=v; document.querySelectorAll('.period-btn[data-val]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+  const v = el.dataset.val;
+  selectedPeriod = (selectedPeriod === v && v !== 'none') ? 'none' : v;
+  // Scope to the flow group only (symptoms also use .period-btn[data-val])
+  document.querySelectorAll('#flowBtns .period-btn[data-val]').forEach(b => { const on = b.dataset.val === selectedPeriod; b.classList.toggle('active', on); setPressed(b, on); });
 }
 function toggleSymptom(el) {
-  const v=el.dataset.val;
-  if (selectedSymptoms.has(v)) { selectedSymptoms.delete(v); el.classList.remove('active'); }
-  else { selectedSymptoms.add(v); el.classList.add('active'); }
+  const v = el.dataset.val, has = !selectedSymptoms.has(v);
+  has ? selectedSymptoms.add(v) : selectedSymptoms.delete(v);
+  el.classList.toggle('active', has); setPressed(el, has);
 }
 
 // ══════════════════════════════════════
@@ -851,16 +1155,25 @@ function updateTempHint() {
 function saveEntry() {
   const date=document.getElementById('logDate').value; if (!date) { showToast('Please select a date'); return; }
   const temp=document.getElementById('logTemp').value, cm=document.getElementById('logCM').value, notes=document.getElementById('logNote').value;
+  // Guard against a fat-fingered temp that would distort the whole chart/model
+  if (temp!=='') {
+    const t=parseFloat(temp);
+    if (isNaN(t)||t<95||t>104) { showToast('Temp looks off — enter °F between 95 and 104'); document.getElementById('logTemp').focus(); return; }
+  }
+  const anchorBefore=getCurrentCycleStart();
   const entry={date,lh:selectedLH,period:selectedPeriod,intimacy:selectedIntimacy,symptoms:[...selectedSymptoms],cm,notes,timestamp:Date.now()};
-  if (temp) entry.temp=parseFloat(temp);
+  if (temp!=='') entry.temp=parseFloat(temp);
   const s=getSettings();
   if (['light','medium','heavy'].includes(selectedPeriod)&&!s.lastPeriod) { s.lastPeriod=date; saveSettingsData(s); document.getElementById('set-lastPeriod').value=date; }
   const entries=getEntries(); entries[date]=entry; saveEntries(entries);
   setLogLockState(entry);
-  showToast('✓ Saved for '+fmtDisplayDate(date));
   // Re-anchor + refresh every view (editing a period entry may move the current cycle start)
   updateStatusBar(); drawMainChart(); renderInsights(); renderCalendar(); renderHistory();
   if (document.getElementById('sec-predict').classList.contains('active')) renderPredict();
+  // Acknowledge a silent re-anchor so predictions don't shift without explanation
+  const anchorAfter=getCurrentCycleStart();
+  if (anchorAfter!==anchorBefore) showToast('✓ Saved — cycle updated, predictions refreshed');
+  else showToast('✓ Saved for '+fmtDisplayDate(date));
 }
 
 // ══════════════════════════════════════
@@ -899,8 +1212,9 @@ function getCycleInfo(dateStr, s) {
   } else {
     phase='Luteal'; icon='🌕'; title='Luteal Phase';
     const dtn = s.cycleLen - cycleDay + 1;
-    if (dtn > 0) { desc=`Next period in ~${dtn} day${dtn!==1?'s':''}.`; status=`Next period in ~${dtn} day${dtn!==1?'s':''}`; }
-    else         { desc='Your period may be due — log it to re-anchor.'; status='Period expected — log it to re-anchor'; }
+    if (dtn > 1)        { desc=`You're in the two-week wait — about ${dtn} days to go. Hang in there.`; status=`Two-week wait · about ${dtn} days to go`; }
+    else if (dtn === 1) { desc='Your period could arrive tomorrow. Whatever it brings, you\'ve got this.'; status='Two-week wait · almost there'; }
+    else                { desc='Your period may be due around now. If it arrives, logging the first day keeps your fertile window accurate.'; status='Period may be due soon — hang in there'; }
   }
   return { cycleDay, phase, icon, title, desc, status };
 }
@@ -1316,17 +1630,20 @@ function computePrediction() {
     todayCycleDay = Math.round((today - new Date(currentCycleStart+'T00:00:00')) / 86400000) + 1;
   }
 
-  // LH signal in current cycle — shift distribution
+  // LH signal in current cycle — surge is judged against the user's own baseline.
   let lhBoost = 0, lhPeakDayThis = null;
+  const lhSignal = analyzeLHCurrentCycle(entries, currentCycleStart, today);
   if (currentCycleStart) {
-    for (let d = 1; d <= (todayCycleDay||40); d++) {
-      const dd = new Date(currentCycleStart+'T00:00:00'); dd.setDate(dd.getDate()+d-1);
-      const e = entries[fmtDate(dd)];
-      if (e?.lh === 'peak') { lhPeakDayThis = d; lhBoost = 3; break; }
-      if (e?.lh === 'high' && !lhPeakDayThis) { lhBoost = 1; }
+    if (lhSignal.status === 'surge') {
+      // Confirmed surge (peak, or a ≥2-step jump above baseline) — pin + tighten, as before.
+      lhPeakDayThis = lhSignal.day;
+      mean = (mean + lhSignal.day) / 2; sd = Math.max(sd * 0.5, 0.8);
+      confidenceScore = 3; confidence = 'high';
+    } else if (lhSignal.status === 'soft') {
+      // Early rise — narrow the window slightly, don't over-commit.
+      lhBoost = 1; sd = Math.max(sd * 0.8, 1);
     }
-    if (lhPeakDayThis) { mean = (mean + lhPeakDayThis) / 2; sd = Math.max(sd * 0.5, 0.8); confidenceScore = 3; confidence = 'high'; }
-    else if (lhBoost) { sd = Math.max(sd * 0.8, 1); }
+    // 'consistent'/'none' → leave the distribution unchanged (baseline never fakes a surge).
   }
 
   // BBT confirmation in current cycle
@@ -1581,7 +1898,7 @@ function renderCalendar() {
   for (let d=1;d<=dim;d++) {
     const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const e=entries[ds], dd=new Date(year,month,d), isFuture=dd>today;
-    const el=document.createElement('div'); el.className='cycle-day';
+    const el=document.createElement('button'); el.type='button'; el.className='cycle-day';
     if (ds===todayStr)                    el.classList.add('is-today');
     if (isFuture)                         el.classList.add('future');
     if (e?.period&&e.period!=='none')     el.classList.add('is-period');
@@ -1597,6 +1914,14 @@ function renderCalendar() {
       // Intimacy heart marker (CSS tints it light on solid-fill days for legibility)
       if (e.intimacy) { const h=document.createElement('div'); h.className='day-heart'; h.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5s-7-4.35-9.3-8.3C1 9.5 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.6 3.5 2.9 6.2C19 16.15 12 20.5 12 20.5Z"/></svg>'; el.appendChild(h); }
     }
+    const lbl=[dd.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})];
+    if (el.classList.contains('is-today')) lbl.push('today');
+    if (el.classList.contains('is-period')) lbl.push('period');
+    else if (el.classList.contains('is-peak')) lbl.push('ovulation');
+    else if (el.classList.contains('is-fertile')) lbl.push('fertile');
+    if (e?.temp) lbl.push('temp logged');
+    if (e?.intimacy) lbl.push('intimacy logged');
+    el.setAttribute('aria-label', lbl.join(', '));
     el.onclick=()=>jumpToLog(ds); grid.appendChild(el);
   }
 }
@@ -1608,11 +1933,10 @@ function loadLogDate(dateStr) {
   document.getElementById('logDate').value = dateStr;
   selectedLH='none'; selectedPeriod='none'; selectedSymptoms=new Set();
   ['logTemp','logCM','logNote'].forEach(id=>document.getElementById(id).value='');
-  document.querySelectorAll('.lh-option').forEach(el=>el.classList.remove('selected'));
-  document.querySelectorAll('.period-btn').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('#symptomBtns .period-btn').forEach(el=>el.classList.remove('active'));
-  document.querySelector('.lh-option[data-val="none"]').classList.add('selected');
-  document.querySelector('.period-btn[data-val="none"]').classList.add('active');
+  document.querySelectorAll('.lh-option').forEach(el=>{el.classList.remove('selected');setPressed(el,false);});
+  document.querySelectorAll('.period-btn').forEach(el=>{el.classList.remove('active');setPressed(el,false);});
+  const lhNone=document.querySelector('.lh-option[data-val="none"]'); lhNone.classList.add('selected'); setPressed(lhNone,true);
+  const flowNone=document.querySelector('#flowBtns .period-btn[data-val="none"]'); flowNone.classList.add('active'); setPressed(flowNone,true);
   setIntimacy(false);
   const dObj = new Date(dateStr+'T00:00:00'), todayStr = fmtDate(new Date());
   document.getElementById('todayDateLabel').textContent =
@@ -1647,7 +1971,7 @@ function renderHistory() {
     if (e.lh&&e.lh!=='none') { const ic={low:'〇',high:'◉',peak:'⚡'}; tags.push(`<span class="tag tag-lh-${e.lh}">${ic[e.lh]||''} LH ${cap(e.lh)}</span>`); }
     if (e.temp) {
       const vr=getTempVar(e.temp,ds); let vh='';
-      if (vr) { const ar=vr.dir==='higher'?'↑':vr.dir==='lower'?'↓':'→', co=vr.dir==='higher'?'var(--deep-rose)':vr.dir==='lower'?'#4d8a62':'var(--light-mid)', dl=vr.text.split(' ').slice(0,2).join(' '); vh=` <span style="font-size:9px;color:${co};font-weight:600">${ar} ${dl}</span>`; }
+      if (vr) { const ar=vr.dir==='higher'?'↑':vr.dir==='lower'?'↓':'→', co=vr.dir==='higher'?'var(--deep-rose)':vr.dir==='lower'?'#4d8a62':'var(--light-mid)', dl=vr.text.split(' ').slice(0,2).join(' '); vh=` <span style="font-size:11px;color:${co};font-weight:600">${ar} ${dl}</span>`; }
       tags.push(`<span class="tag tag-temp">🌡 ${e.temp.toFixed(2)}°${vh}</span>`);
     }
     if (e.intimacy) tags.push(`<span class="tag tag-intimacy">${heartSvg} Intimacy</span>`);
@@ -1762,13 +2086,18 @@ function buildModel() {
 
   // ── 5. Current cycle prediction ──
   const lastStart = cycleStarts.length ? cycleStarts[cycleStarts.length - 1] : s.lastPeriod;
-  const today     = new Date();
+  const today     = new Date(fmtDate(new Date())+'T00:00:00');
   const currentCycleDay = lastStart
     ? Math.round((today - new Date(lastStart + 'T00:00:00')) / 86400000) + 1
     : null;
 
   // Check if current cycle has a confirmed ovulation (LH peak or BBT shift already detected)
   const currentConfirmed = confirmedOvulations.find(c => c.cycleStart === lastStart);
+
+  // Baseline-relative LH read for the current cycle (peak always confirms; elevated
+  // baseline no longer masquerades as a surge). Single source used for both the estimate
+  // and the plain-language explainer on the Predict tab.
+  const lhSignal = analyzeLHCurrentCycle(entries, lastStart, today);
 
   // Predicted ovulation date
   let predictedOvDay   = Math.round(avgOvDay);
@@ -1780,25 +2109,19 @@ function buildModel() {
     predMethod       = currentConfirmed.method;
     predAnchoredDate = currentConfirmed.ovDate;
   } else if (lastStart) {
-    // Look for any LH high/peak in current cycle to update estimate
-    const d = new Date(lastStart + 'T00:00:00');
-    while (d <= today) {
-      const ds = fmtDate(d);
-      const e  = entries[ds];
-      if (e?.lh === 'peak') {
-        const dayNum = Math.round((d - new Date(lastStart + 'T00:00:00')) / 86400000) + 1;
-        predictedOvDay   = dayNum;
-        predMethod       = 'lh';
-        predAnchoredDate = ds;
-        break;
-      } else if (e?.lh === 'high' && predMethod === 'history') {
-        // High LH pulls the prediction 1-2 days later
-        const dayNum = Math.round((d - new Date(lastStart + 'T00:00:00')) / 86400000) + 1;
-        predictedOvDay = Math.max(predictedOvDay, dayNum + 1);
-        predMethod = 'lh_high';
-      }
-      d.setDate(d.getDate() + 1);
+    if (lhSignal.status === 'surge') {
+      // True surge → pin ovulation. Peak anchors on its day (unchanged); a non-peak
+      // ≥2-step jump releases the egg ~1 day later. Tightened SD handled below.
+      predictedOvDay   = lhSignal.reason === 'peak' ? lhSignal.day : lhSignal.day + 1;
+      predMethod       = lhSignal.reason === 'peak' ? 'lh' : 'lh_surge';
+      predAnchoredDate = lhSignal.date;
+    } else if (lhSignal.status === 'soft') {
+      // Early rise → narrow + bias the estimate a touch earlier, but don't pin it.
+      predictedOvDay = Math.min(predictedOvDay, lhSignal.day + 2);
+      predMethod     = 'lh_high';
     }
+    // 'consistent' (high but in line with an elevated baseline) and 'none' → leave the
+    // history-based estimate untouched, so we never over-commit to her normal readings.
   }
 
   // Predicted ovulation date
@@ -1811,12 +2134,12 @@ function buildModel() {
   // ── 6. Confidence rating ──
   let confidence, confLabel, confColor;
   const confirmedCount = confirmedOvulations.length;
-  if (predMethod === 'lh' || predMethod === 'bbt') {
+  if (predMethod === 'lh' || predMethod === 'bbt' || predMethod === 'lh_surge') {
     confidence = 'high'; confLabel = 'High Confidence'; confColor = 'rgba(100,160,110,0.15)';
   } else if (confirmedCount >= 3 || predMethod === 'lh_high') {
     confidence = 'medium'; confLabel = 'Medium Confidence'; confColor = 'rgba(196,180,90,0.15)';
   } else {
-    confidence = 'low'; confLabel = 'Low Confidence'; confColor = 'rgba(196,122,90,0.12)';
+    confidence = 'low'; confLabel = 'Early estimate'; confColor = 'rgba(196,122,90,0.12)';
   }
 
   // ── 7. Gaussian probability curve over cycle days ──
@@ -1827,6 +2150,7 @@ function buildModel() {
 
   // Effective sd: narrow if anchored by LH/BBT, wider if history only
   const effectiveSd = predMethod === 'lh' ? 0.8
+    : predMethod === 'lh_surge' ? 0.9
     : predMethod === 'bbt' ? 1.2
     : predMethod === 'lh_high' ? 1.8
     : Math.max(sdOvDay, 1.5);
@@ -1841,6 +2165,7 @@ function buildModel() {
       const viability = CONCEPTION_PROB[String(offset)] || 0;
       // Modulate by how certain we are about ovulation day
       const certaintyFactor = predMethod === 'lh' ? 1.0
+        : predMethod === 'lh_surge' ? 0.95
         : predMethod === 'bbt' ? 0.90
         : predMethod === 'lh_high' ? 0.75
         : 0.60;
@@ -1871,6 +2196,7 @@ function buildModel() {
     predMethod,
     predAnchoredDate,
     currentConfirmed,
+    lhSignal,
 
     // Confidence
     confidence, confLabel, confColor,
@@ -1886,7 +2212,7 @@ function buildModel() {
 // ── Render predict tab ──
 function renderPredict() {
   const m = buildModel();
-  const today = new Date(), todayStr = fmtDate(today);
+  const today = new Date(fmtDate(new Date())+'T00:00:00'), todayStr = fmtDate(today);
 
   // ── Headline card ──
   const badge = document.getElementById('pred-confidence-badge');
@@ -1895,32 +2221,39 @@ function renderPredict() {
   badge.style.color = m.confidence === 'high' ? '#3a7a4a' : m.confidence === 'medium' ? '#7a6a20' : 'var(--mid)';
 
   const confSub = {
-    high: m.predMethod === 'lh' ? 'Anchored by LH peak — most accurate' : 'Confirmed by BBT thermal shift',
-    medium: m.predMethod === 'lh_high' ? 'LH strip shows high — peak expected soon' : `Based on ${m.confirmedOvulations.length} confirmed cycles`,
-    low: `Based on cycle length history (${m.cycleCount} cycles) — log daily to improve`
+    high: m.predMethod === 'lh' ? 'Anchored by LH peak — most accurate'
+        : m.predMethod === 'lh_surge' ? 'Anchored by an LH surge above your baseline'
+        : 'Confirmed by BBT thermal shift',
+    medium: m.predMethod === 'lh_high' ? 'LH trending up — watching for a clearer surge' : `Based on ${m.confirmedOvulations.length} confirmed cycles`,
+    low: `Still learning your pattern — this sharpens with every cycle you log`
   };
   document.getElementById('pred-confidence-label').textContent = confSub[m.confidence];
 
   if (m.predictedOvDate) {
     const daysAway = Math.round((m.predictedOvDate - today) / 86400000);
     const dateStr  = m.predictedOvDate.toLocaleDateString('en-US', {month:'long', day:'numeric'});
+    // Plain-language fertile window: best days to try are ov-2 .. ovulation
+    const ov = m.predictedOvDate, rel = n => { const x = new Date(ov); x.setDate(x.getDate()+n); return x; };
+    const fmtMD = x => x.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    const fs = rel(-5), fe = rel(1), bestStart = rel(-2);
+    const toGo = Math.max(0, Math.round(m.avgCycle) - (m.currentCycleDay || 0));
     let headline = '', subline = '';
 
     if (m.currentConfirmed?.method === 'lh' && daysAway <= 0) {
-      headline = `Ovulation was ${Math.abs(daysAway) === 0 ? 'today' : Math.abs(daysAway) + ' days ago'}`;
-      subline  = `LH peak confirmed on ${fmtDisplayDate(m.predAnchoredDate)}. Luteal phase now in progress.`;
+      headline = "Ovulation confirmed — you're in the two-week wait";
+      subline  = `LH peak on ${fmtDisplayDate(m.predAnchoredDate)}. About ${toGo} day${toGo!==1?'s':''} until you'll know more — hang in there.`;
     } else if (m.currentConfirmed?.method === 'bbt') {
-      headline = `Ovulation confirmed — ${dateStr}`;
-      subline  = `BBT thermal shift detected. You're ${Math.abs(daysAway)} days post-ovulation.`;
+      headline = "Ovulation confirmed — you're in the two-week wait";
+      subline  = `Your temperature shift confirms it (around ${dateStr}). About ${toGo} day${toGo!==1?'s':''} to go.`;
     } else if (daysAway > 0) {
-      headline = `Predicted ovulation: ${dateStr}`;
-      subline  = `In ${daysAway} day${daysAway !== 1 ? 's' : ''} · cycle day ${m.predictedOvDay} of ~${Math.round(m.avgCycle)}`;
+      headline = `Your best days to try: ${fmtMD(bestStart)}–${fmtMD(ov)}`;
+      subline  = `Fertile window ${fmtMD(fs)}–${fmtMD(fe)} · ovulation around ${dateStr}, cycle day ${m.predictedOvDay}.`;
     } else if (daysAway === 0) {
-      headline = '⚡ Predicted ovulation: Today';
-      subline  = `Cycle day ${m.currentCycleDay} — log your LH strip and temp today`;
+      headline = 'Today is one of your best days to try';
+      subline  = `Ovulation is likely today (cycle day ${m.currentCycleDay}). Logging your LH strip and temp will help confirm it.`;
     } else {
-      headline = `Ovulation likely passed — ${dateStr}`;
-      subline  = `Luteal phase in progress. Next period expected in ~${Math.round(m.avgCycle) - (m.currentCycleDay || 0)} days.`;
+      headline = 'Your fertile window has closed for this cycle';
+      subline  = `You're in the two-week wait — about ${toGo} day${toGo!==1?'s':''} to go. Hang in there.`;
     }
 
     document.getElementById('pred-headline').textContent = headline;
@@ -1928,6 +2261,19 @@ function renderPredict() {
   } else {
     document.getElementById('pred-headline').textContent = 'Not enough data yet';
     document.getElementById('pred-subline').textContent  = 'Set your last period date in Settings to get started.';
+  }
+
+  // ── LH surge explainer (what the model actually saw) ──
+  const lhNote = document.getElementById('pred-lh-note');
+  const sig = m.lhSignal;
+  if (sig && sig.status && sig.status !== 'none' && sig.message) {
+    const confirmed = sig.status === 'surge';
+    lhNote.style.display = 'block';
+    lhNote.style.background = confirmed ? 'rgba(111,160,124,0.14)' : 'rgba(181,87,60,0.09)';
+    lhNote.style.color      = confirmed ? 'var(--fertile-text)' : 'var(--mid)';
+    lhNote.textContent = (confirmed ? '✓ ' : '👀 ') + sig.message;
+  } else {
+    lhNote.style.display = 'none';
   }
 
   // ── Daily conception probability table ──
@@ -2256,6 +2602,7 @@ async function pushSync() {
   setSyncStatus('Uploading…', true);
   const payload = {
     entries: getEntries(),
+    pregEntries: getPregEntries(),
     settings: getSettings(),
     syncedAt: new Date().toISOString(),
     passHash: hashStr(syncCode),
@@ -2397,6 +2744,16 @@ async function pullSync() {
     });
     saveEntries(merged);
 
+    // Merge pregnancy-mode entries (same newest-timestamp-wins rule)
+    if (p.pregEntries) {
+      const localPreg=getPregEntries(), mergedPreg={...localPreg};
+      Object.keys(p.pregEntries).forEach(d=>{
+        const rem=p.pregEntries[d], loc=localPreg[d];
+        if (!loc||(rem.timestamp||0)>(loc.timestamp||0)) mergedPreg[d]=rem;
+      });
+      savePregEntries(mergedPreg);
+    }
+
     if (p.settings) {
       saveSettingsData(p.settings);
       const s=p.settings;
@@ -2413,6 +2770,7 @@ async function pullSync() {
     updateStatusBar(); drawMainChart(); renderInsights(); renderCalendar(); renderHistory();
     const curDate = document.getElementById('logDate').value;
     setLogLockState(getEntries()[curDate] || null);
+    applyMode(getSettings().mode || 'cycle'); // remote may have switched modes
   } catch(err) {
     setSyncStatus(`✗ Pull failed: ${err.message}`);
     renderSyncStatusCard({state:'error', msg:err.message});
@@ -2702,6 +3060,272 @@ let toastTimer;
 function showToast(msg) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600); }
 
 window.addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(drawMainChart,150);});
+
+// ══════════════════════════════════════
+//  PREGNANCY MODE
+// ══════════════════════════════════════
+// Static developmental facts only (no advice), sourced from the Mayo/Cleveland pages.
+const WEEK_INFO = {
+  4:{emoji:'🌱',size:'Poppy seed',note:'The embryo implants and the placenta begins to form.'},
+  5:{emoji:'🌱',size:'Sesame seed',note:'The neural tube, which becomes the brain and spine, is forming.'},
+  6:{emoji:'🫘',size:'Lentil',note:'A heartbeat can often be detected on ultrasound.'},
+  7:{emoji:'🫐',size:'Blueberry',note:'Tiny arm and leg buds are appearing.'},
+  8:{emoji:'🫘',size:'Kidney bean',note:'Fingers and toes are beginning to form.'},
+  9:{emoji:'🍒',size:'Cherry',note:'The basic body structure and major organs are in place.'},
+  10:{emoji:'🍓',size:'Strawberry',note:'Now called a fetus; the joints can bend.'},
+  11:{emoji:'🍋',size:'Lime',note:'Tooth buds and tiny fingernails are developing.'},
+  12:{emoji:'🟢',size:'Plum',note:'Reflexes develop and small movements begin.',milestone:'End of the first trimester'},
+  13:{emoji:'🍋',size:'Lemon',note:'Fingerprints are forming and vocal cords are developing.'},
+  14:{emoji:'🍑',size:'Peach',note:'The face grows more expressive; fine hair appears.'},
+  15:{emoji:'🍎',size:'Apple',note:'The fetus can sense light and is forming taste buds.'},
+  16:{emoji:'🥑',size:'Avocado',note:'Eyes and ears near their final position; movements grow.'},
+  17:{emoji:'🍐',size:'Pear',note:'The skeleton hardens from cartilage to bone.'},
+  18:{emoji:'🫑',size:'Bell pepper',note:'The ears stand out and hearing is developing.'},
+  19:{emoji:'🥭',size:'Mango',note:'A protective coating called vernix covers the skin.'},
+  20:{emoji:'🍌',size:'Banana',note:'The halfway point; the anatomy scan is often done around now.',milestone:'Halfway — anatomy scan window'},
+  21:{emoji:'🥕',size:'Carrot',note:'Movements become more coordinated and noticeable.'},
+  22:{emoji:'🎃',size:'Papaya',note:'Lips, eyelids and eyebrows are more distinct.'},
+  23:{emoji:'🍈',size:'Grapefruit',note:'The sense of hearing continues to sharpen.'},
+  24:{emoji:'🌽',size:'Ear of corn',note:'The lungs develop branches and air-sac cells.'},
+  25:{emoji:'🥬',size:'Rutabaga',note:'The fetus gains fat and the skin looks less translucent.'},
+  26:{emoji:'🥬',size:'Head of lettuce',note:'The eyes begin to open and respond to light.'},
+  27:{emoji:'🥦',size:'Cauliflower',note:'Sleep-and-wake patterns are developing.',milestone:'Third trimester begins'},
+  28:{emoji:'🍆',size:'Eggplant',note:'The brain grows quickly and regulates temperature better.'},
+  29:{emoji:'🎃',size:'Butternut squash',note:'Muscles and lungs mature; bones are fully developed.'},
+  30:{emoji:'🥬',size:'Cabbage',note:'The fetus can distinguish light and dark.'},
+  31:{emoji:'🥥',size:'Coconut',note:'All five senses are working.'},
+  32:{emoji:'🎃',size:'Squash',note:'Toenails and fingernails are fully formed.'},
+  33:{emoji:'🍍',size:'Pineapple',note:'The skull stays soft and flexible for birth.'},
+  34:{emoji:'🍈',size:'Cantaloupe',note:'The central nervous system and lungs keep maturing.'},
+  35:{emoji:'🍈',size:'Honeydew melon',note:'Most development is complete; mainly gaining weight now.'},
+  36:{emoji:'🥬',size:'Romaine lettuce',note:'The fetus often settles into a head-down position.'},
+  37:{emoji:'🥬',size:'Swiss chard',note:'Considered early term; the lungs and brain keep maturing.',milestone:'Full term'},
+  38:{emoji:'🧅',size:'Leek',note:'A firm grasp develops; organs are ready to function.'},
+  39:{emoji:'🍉',size:'Mini watermelon',note:'Considered full term; fat stores keep building.'},
+  40:{emoji:'🎃',size:'Small pumpkin',note:'Your due date — babies arrive on their own schedule.'}
+};
+
+const PREGNANCY_RESOURCES = {
+  first: [
+    { source:"Mayo Clinic",      label:"Fetal development: first trimester", url:"https://www.mayoclinic.org/healthy-lifestyle/pregnancy-week-by-week/in-depth/prenatal-care/art-20045302" },
+    { source:"Johns Hopkins",    label:"The first trimester: what to expect", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/the-first-trimester" },
+    { source:"Cleveland Clinic", label:"Fetal development: stages of growth", url:"https://my.clevelandclinic.org/health/articles/7247-fetal-development-stages-of-growth" },
+    { source:"ACOG",             label:"How your fetus grows during pregnancy", url:"https://www.acog.org/womens-health/faqs/how-your-fetus-grows-during-pregnancy" }
+  ],
+  second: [
+    { source:"Mayo Clinic",   label:"Fetal development: second trimester", url:"https://www.mayoclinic.org/healthy-lifestyle/pregnancy-week-by-week/in-depth/fetal-development/art-20046151" },
+    { source:"Johns Hopkins", label:"Staying healthy during pregnancy", url:"https://www.hopkinsmedicine.org/health/conditions-and-diseases/staying-healthy-during-pregnancy" },
+    { source:"Johns Hopkins", label:"Common tests during pregnancy", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/common-tests-during-pregnancy" },
+    { source:"ACOG",          label:"How your fetus grows during pregnancy", url:"https://www.acog.org/womens-health/faqs/how-your-fetus-grows-during-pregnancy" }
+  ],
+  third: [
+    { source:"Mayo Clinic",   label:"Fetal development: third trimester", url:"https://www.mayoclinic.org/healthy-lifestyle/pregnancy-week-by-week/in-depth/fetal-development/art-20045997" },
+    { source:"Johns Hopkins", label:"The third trimester: what to expect", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/the-third-trimester" },
+    { source:"Johns Hopkins", label:"Nutrition during pregnancy", url:"https://www.hopkinsmedicine.org/health/wellness-and-prevention/nutrition-during-pregnancy" },
+    { source:"ACOG",          label:"Preparing for birth", url:"https://www.acog.org/womens-health/faqs" }
+  ]
+};
+
+const clampWeek = w => Math.max(4, Math.min(40, w));
+function pregGestation(preg) {
+  const lmp = new Date(preg.startLMP+'T00:00:00');
+  const today = new Date(fmtDate(new Date())+'T00:00:00');
+  const days = Math.max(0, Math.round((today - lmp)/86400000));
+  const weeks = Math.floor(days/7), extraDays = days%7;
+  const trimester = weeks < 14 ? 'first' : weeks < 28 ? 'second' : 'third';
+  const trimesterLabel = trimester==='first' ? 'First trimester' : trimester==='second' ? 'Second trimester' : 'Third trimester';
+  const due = new Date(preg.dueDate+'T00:00:00');
+  const weeksToGo = Math.max(0, Math.round((due - today)/(7*86400000)));
+  return { days, weeks, extraDays, trimester, trimesterLabel, weeksToGo, due };
+}
+const fmtLongDate = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+// ── Mode switching ──
+function applyMode(mode) {
+  const preg = mode === 'pregnancy';
+  document.body.classList.toggle('preg', preg);
+  document.getElementById('cycleTabbar').hidden = preg;
+  document.getElementById('pregTabbar').hidden = !preg;
+  if (preg) {
+    document.getElementById('hero').style.display = 'none';
+    document.getElementById('mainGraphCard').style.display = 'none';
+    showPreg('home');
+  } else {
+    document.getElementById('preg-hero').hidden = true;
+    ['home','weeks'].forEach(s=>document.getElementById('sec-'+s).classList.remove('active'));
+    showSection('log');
+  }
+}
+
+const PREG_SECS = ['home','weeks','settings'];
+function showPreg(name) {
+  const target = 'sec-' + name; // 'settings' reuses the shared settings section
+  ['log','cycle','history','predict','settings','home','weeks'].forEach(s=>{
+    const el=document.getElementById('sec-'+s); if (el) el.classList.toggle('active', ('sec-'+s)===target);
+  });
+  document.querySelectorAll('#pregTabbar button').forEach((b,i)=>b.classList.toggle('active', PREG_SECS[i]===name));
+  const onHome = name==='home';
+  document.getElementById('preg-hero').hidden = !onHome;
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('mainGraphCard').style.display = 'none';
+  const ph = document.getElementById('pageHeader');
+  if (onHome) { ph.style.display='none'; }
+  else {
+    ph.style.display='block';
+    const t = name==='weeks' ? {title:'Weeks',cap:'Week by week'} : {title:'Settings',cap:'Pregnancy · sync · data'};
+    document.getElementById('pageTitle').textContent=t.title; document.getElementById('pageCap').textContent=t.cap;
+  }
+  if (onHome) renderPregHome();
+  else if (name==='weeks') renderPregWeeks();
+  else { renderPregSettings(); renderSyncStatusCard(); }
+  window.scrollTo({top:0});
+}
+
+// ── Home ──
+function renderPregHome() {
+  const s = getSettings(); if (!s.pregnancy) return;
+  const g = pregGestation(s.pregnancy);
+  const wk = clampWeek(g.weeks), info = WEEK_INFO[wk];
+  // Hero
+  document.getElementById('pregWeekNum').textContent = g.extraDays ? `Week ${g.weeks} + ${g.extraDays} day${g.extraDays!==1?'s':''}` : `Week ${g.weeks}`;
+  document.getElementById('pregWeekSub').textContent = `${g.trimesterLabel} · ${g.weeksToGo} week${g.weeksToGo!==1?'s':''} to go`;
+  // Size card
+  document.getElementById('pregSizeEmoji').textContent = info.emoji;
+  document.getElementById('pregSizeLabel').textContent = `About the size of a ${info.size.toLowerCase()}`;
+  document.getElementById('pregSizeNote').textContent = info.note;
+  // Tiles
+  document.getElementById('pregDueTile').textContent = fmtLongDate(g.due);
+  document.getElementById('pregApptTile').textContent = s.pregnancy.nextAppt ? fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00')) : 'Not set';
+  // Log-today prefill
+  document.getElementById('pregLogDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const today = fmtDate(new Date()), pe = getPregEntries()[today];
+  pregSelectedSymptoms = new Set(pe?.symptoms || []);
+  document.querySelectorAll('#pregSymptomBtns .period-btn').forEach(b=>{const on=pregSelectedSymptoms.has(b.dataset.val); b.classList.toggle('active',on); setPressed(b,on);});
+  document.getElementById('pregWeight').value = pe?.weight ?? '';
+  document.getElementById('pregNote').value = pe?.notes || '';
+  // Resources
+  const res = PREGNANCY_RESOURCES[g.trimester] || PREGNANCY_RESOURCES.first;
+  document.getElementById('pregResTrimester').textContent = `${g.trimesterLabel} · trusted sources`;
+  const arrow = '<span class="res-arrow"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></span>';
+  document.getElementById('pregResList').innerHTML = res.map(r=>
+    `<a class="res-link" href="${r.url}" target="_blank" rel="noopener noreferrer"><div class="res-body"><div class="res-label">${r.label}</div><div class="res-source">${r.source} ↗</div></div>${arrow}</a>`
+  ).join('');
+  renderPregRecent();
+}
+
+let pregShowAll = false;
+function renderPregRecent() {
+  const entries = getPregEntries();
+  const keys = Object.keys(entries).sort((a,b)=>b.localeCompare(a));
+  const list = document.getElementById('pregRecentList');
+  const wrap = document.getElementById('pregViewAllWrap');
+  if (!keys.length) { list.innerHTML = `<div class="empty" style="padding:18px 0"><div class="empty-sub">No entries yet — your logs will appear here.</div></div>`; wrap.innerHTML=''; return; }
+  const shown = pregShowAll ? keys : keys.slice(0,5);
+  const symLabel = v => ({nausea:'Nausea',fatigue:'Fatigue',cravings:'Cravings',heartburn:'Heartburn',backache:'Backache',movement:'Felt movement'}[v]||cap(v));
+  list.innerHTML = shown.map(ds=>{
+    const e=entries[ds], d=new Date(ds+'T00:00:00'), day=d.getDate(), mon=d.toLocaleDateString('en-US',{month:'short'});
+    const tags=[];
+    if (e.weight!=null) tags.push(`<span class="tag tag-temp">⚖ ${e.weight}</span>`);
+    (e.symptoms||[]).forEach(sy=>tags.push(`<span class="tag tag-lh-none">${symLabel(sy)}</span>`));
+    return `<div class="log-entry" style="cursor:default"><div class="log-date-col"><div class="ld-day">${day}</div><div class="ld-mon">${mon}</div></div><div class="log-data"><div class="log-tags">${tags.join('')||'<span style="color:var(--blush);font-size:12px">No tags</span>'}</div>${e.notes?`<div class="log-note">"${e.notes}"</div>`:''}</div></div>`;
+  }).join('');
+  wrap.innerHTML = keys.length>5 ? `<button class="btn-outline" onclick="pregShowAll=!pregShowAll;renderPregRecent()">${pregShowAll?'Show less':'View all ('+keys.length+')'}</button>` : '';
+}
+
+let pregSelectedSymptoms = new Set();
+function togglePregSymptom(el) {
+  const v=el.dataset.val, has=!pregSelectedSymptoms.has(v);
+  has ? pregSelectedSymptoms.add(v) : pregSelectedSymptoms.delete(v);
+  el.classList.toggle('active',has); setPressed(el,has);
+}
+function savePregEntry() {
+  const today = fmtDate(new Date());
+  const w = document.getElementById('pregWeight').value, n = document.getElementById('pregNote').value;
+  const e = getPregEntries();
+  const entry = { date:today, symptoms:[...pregSelectedSymptoms], notes:n, timestamp:Date.now() };
+  if (w!=='') entry.weight = parseFloat(w);
+  e[today] = entry; savePregEntries(e);
+  showToast("✓ Saved today's entry");
+  renderPregRecent();
+  if (syncCode) pushSync();
+}
+
+// ── Weeks ──
+function renderPregWeeks() {
+  const s = getSettings(); if (!s.pregnancy) return;
+  const cur = clampWeek(pregGestation(s.pregnancy).weeks);
+  let html='';
+  for (let w=4; w<=40; w++) {
+    const info = WEEK_INFO[w];
+    const cls = w===cur ? 'current' : w<cur ? '' : 'future';
+    html += `<div class="week-card ${cls}">
+      <div class="wk-numcol"><div class="wk-num">${w}</div><div class="wk-numlabel">Week</div></div>
+      <div class="wk-body"><div class="wk-size">${info.emoji} ${info.size}</div><div class="wk-note">${info.note}</div>${info.milestone?`<span class="wk-milestone">${info.milestone}</span>`:''}</div>
+    </div>`;
+  }
+  document.getElementById('pregWeeksList').innerHTML = html;
+}
+
+// ── Pregnancy settings helpers ──
+function renderPregSettings() {
+  const s = getSettings(); if (!s.pregnancy) return;
+  document.getElementById('preg-lmp').value = s.pregnancy.startLMP || '';
+  document.getElementById('preg-due-readout').textContent = s.pregnancy.dueDate ? fmtLongDate(new Date(s.pregnancy.dueDate+'T00:00:00')) : '—';
+  document.getElementById('preg-appt').value = s.pregnancy.nextAppt || '';
+  document.getElementById('preg-bbt').checked = !!s.pregnancy.trackBbt;
+}
+function updatePregDates() {
+  const s = getSettings(); if (!s.pregnancy) return;
+  const lmp = document.getElementById('preg-lmp').value; if (!lmp) return;
+  const due = new Date(lmp+'T00:00:00'); due.setDate(due.getDate()+280);
+  s.pregnancy.startLMP = lmp; s.pregnancy.dueDate = fmtDate(due);
+  saveSettingsData(s); renderPregSettings(); showToast('✓ Dates updated');
+  if (syncCode) pushSync();
+}
+function savePregAppt() {
+  const s = getSettings(); if (!s.pregnancy) return;
+  s.pregnancy.nextAppt = document.getElementById('preg-appt').value || null;
+  saveSettingsData(s); showToast('✓ Appointment saved');
+  if (syncCode) pushSync();
+}
+function savePregBbt() {
+  const s = getSettings(); if (!s.pregnancy) return;
+  s.pregnancy.trackBbt = document.getElementById('preg-bbt').checked;
+  saveSettingsData(s);
+}
+
+// ── Confirmation moment ──
+function openPregConfirm() {
+  document.getElementById('pcLmp').value = getCurrentCycleStart() || fmtDate(new Date());
+  document.getElementById('pregConfirm').classList.add('open');
+}
+function cancelPregConfirm() { document.getElementById('pregConfirm').classList.remove('open'); }
+function confirmPregnancy() {
+  const lmp = document.getElementById('pcLmp').value || fmtDate(new Date());
+  const due = new Date(lmp+'T00:00:00'); due.setDate(due.getDate()+280);
+  const s = getSettings();
+  s.mode = 'pregnancy';
+  s.pregnancy = { startLMP:lmp, dueDate:fmtDate(due), confirmedAt:Date.now(), nextAppt:null };
+  saveSettingsData(s);
+  cancelPregConfirm();
+  applyMode('pregnancy');
+  showToast('🌿 Pregnancy mode on');
+  if (syncCode) pushSync();
+}
+
+// ── Quiet exit (Settings only) ──
+function confirmReturnToCycle() {
+  pendingAction = () => {
+    const s = getSettings();
+    if (s.pregnancy) { s.pregnancyHistory = s.pregnancyHistory || []; s.pregnancyHistory.push({ ...s.pregnancy, endedAt:Date.now() }); }
+    delete s.pregnancy; s.mode = 'cycle'; saveSettingsData(s);
+    closeModal(); applyMode('cycle');
+    updateStatusBar(); drawMainChart(); renderCalendar(); renderHistory();
+    showToast('Welcome back');
+    if (syncCode) pushSync();
+  };
+  openModal('Return to cycle tracking?', 'Your history is saved and you can pick up where you left off.');
+}
 
 // Register service worker for PWA offline support
 if ('serviceWorker' in navigator) {
