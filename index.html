@@ -213,10 +213,14 @@
   .insight-tile { background: var(--paper); border: 1px solid rgba(196,122,90,0.16); border-radius: 14px; padding: 13px; text-align: center; }
   .i-val { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 300; color: var(--deep-rose); line-height: 1; }
   .i-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--light-mid); margin-top: 3px; }
-  button.insight-tile { appearance: none; -webkit-appearance: none; font-family: 'DM Sans', sans-serif; cursor: pointer; width: 100%; transition: border-color 0.2s, transform 0.1s; }
-  button.insight-tile:hover { border-color: rgba(124,139,94,0.5); }
-  button.insight-tile:active { transform: scale(0.99); }
-  button.insight-tile.unset .i-val { color: var(--primary-ink); font-size: 15px !important; font-family: 'DM Sans', sans-serif; font-weight: 600; }
+  .appt-tile { position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.1s; }
+  .appt-tile:hover { border-color: rgba(124,139,94,0.5); }
+  .appt-tile:active { transform: scale(0.99); }
+  .appt-tile.unset .i-val { color: var(--primary-ink); font-size: 15px !important; font-weight: 600; }
+  /* Transparent native date input fills the whole tile so a tap opens the OS picker */
+  .appt-tile input[type="date"] { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; padding: 0; border: 0; background: transparent; color: transparent; opacity: 0; cursor: pointer; appearance: none; -webkit-appearance: none; z-index: 1; }
+  .appt-tile input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
+  .appt-tile input[type="date"]:focus-visible { opacity: 1; outline: 2px solid var(--primary-ink); outline-offset: -2px; }
 
   /* SYNC STATUS CARD */
   .sync-status-card { display: flex; align-items: center; gap: 13px; padding: 15px 17px; margin-bottom: 14px; border-radius: 16px; background: rgba(111,160,124,0.10); border: 1px solid rgba(111,160,124,0.30); }
@@ -767,10 +771,11 @@
 
   <div class="insight-row">
     <div class="insight-tile"><div class="i-val" style="font-size:20px" id="pregDueTile">—</div><div class="i-label">Est. Due Date</div></div>
-    <button type="button" class="insight-tile" id="pregApptCard" onclick="pickAppt()">
+    <div class="insight-tile appt-tile" id="pregApptCard">
       <div class="i-val" style="font-size:20px" id="pregApptTile">—</div><div class="i-label">Next Appointment</div>
-    </button>
-    <input type="date" id="pregApptQuick" onchange="saveApptQuick()" aria-hidden="true" tabindex="-1" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0">
+      <!-- Real full-size transparent date input: tapping the tile taps this, so iOS/Android/desktop each open their own native picker -->
+      <input type="date" id="pregApptQuick" onchange="saveApptQuick()" aria-label="Next appointment date">
+    </div>
   </div>
 
   <!-- What to expect around the set appointment (static, typical-language only) -->
@@ -3289,7 +3294,9 @@ function renderPregHome() {
   const apptCard = document.getElementById('pregApptCard');
   document.getElementById('pregApptTile').textContent = apptSet ? fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00')) : '+ Set date';
   apptCard.classList.toggle('unset', !apptSet);
-  apptCard.setAttribute('aria-label', apptSet ? `Next appointment ${fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00'))}, tap to change` : 'Set your next appointment');
+  const apptInput = document.getElementById('pregApptQuick');
+  apptInput.value = s.pregnancy.nextAppt || '';   // opens the picker on the current date
+  apptInput.setAttribute('aria-label', apptSet ? 'Next appointment date, tap to change' : 'Set your next appointment date');
   // "What to expect around this visit" — only when a date is set
   const expCard = document.getElementById('apptExpectCard');
   if (apptSet) {
@@ -3396,14 +3403,8 @@ function savePregAppt() {
   saveSettingsData(s); showToast('✓ Appointment saved');
   if (syncCode) pushSync();
 }
-// Tap the Home "Next appointment" tile to set/change the date inline (no trip to Settings)
-function pickAppt() {
-  const s = getSettings(); if (!s.pregnancy) return;
-  const q = document.getElementById('pregApptQuick');
-  q.value = s.pregnancy.nextAppt || '';
-  if (q.showPicker) { try { q.showPicker(); return; } catch (e) {} }
-  q.focus();
-}
+// Tapping the Home "Next appointment" tile hits its overlaid native date input directly,
+// so each OS shows its own picker (iOS wheel, Android calendar, desktop popover).
 function saveApptQuick() {
   const s = getSettings(); if (!s.pregnancy) return;
   s.pregnancy.nextAppt = document.getElementById('pregApptQuick').value || null;
