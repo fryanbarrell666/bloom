@@ -324,8 +324,8 @@
   .preg-confirm .pc-circle-bg::before, .preg-confirm .pc-circle-bg::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,0.09); pointer-events: none; }
   .preg-confirm .pc-circle-bg::before { width: 260px; height: 260px; top: -90px; right: -90px; }
   .preg-confirm .pc-circle-bg::after  { width: 200px; height: 200px; bottom: -70px; left: -80px; background: rgba(255,255,255,0.07); }
-  .pc-heart { position: relative; width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.16); display: flex; align-items: center; justify-content: center; margin-bottom: 22px; }
-  .pc-heart svg { width: 38px; height: 38px; fill: #FBF7F2; }
+  .pc-heart { position: relative; width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.16); display: flex; align-items: center; justify-content: center; margin-bottom: 22px; color: #FBF7F2; }
+  .pc-heart svg { width: 38px; height: 38px; }
   .preg-confirm h2 { position: relative; font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; font-size: 29px; color: #FBF7F2; margin-bottom: 14px; }
   .preg-confirm p { position: relative; font-size: 14px; line-height: 1.6; max-width: 320px; opacity: 0.94; margin-bottom: 22px; }
   .pc-field { position: relative; width: 100%; max-width: 320px; text-align: left; margin-bottom: 24px; }
@@ -337,8 +337,8 @@
   .pc-secondary { position: relative; margin-top: 18px; background: none; border: none; color: rgba(251,247,242,0.9); font-family: 'DM Sans', sans-serif; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 44px; }
 
   /* Pregnancy hero (sage, same shape as cycle hero) */
-  .preg-hero .hero-wordmark { display: flex; align-items: center; gap: 8px; }
-  .preg-hero .hero-wordmark svg { width: 18px; height: 18px; fill: rgba(255,255,255,0.9); }
+  .preg-hero .hero-wordmark { display: flex; align-items: center; gap: 8px; color: #fff; }
+  .preg-hero .hero-wordmark svg { width: 18px; height: 18px; }
 
   /* Milestone / size card */
   .milestone-card { display: flex; gap: 16px; align-items: center; }
@@ -757,7 +757,7 @@
 <!-- Sage hero (Home) -->
 <div class="hero preg-hero" id="preg-hero" hidden>
   <div class="hero-circles"></div>
-  <div class="hero-wordmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7-4.35-9.3-8.3C1 9.5 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.6 3.5 2.9 6.2C19 16.15 12 20.5 12 20.5Z"/></svg>Bloom</div>
+  <div class="hero-wordmark"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" style="flex-shrink:0"><path d="M12 21s-6.7-4.35-9.2-8.5C1.1 9.7 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.5 3.7 2.8 6.5C18.7 16.65 12 21 12 21z"/></svg>Bloom</div>
   <div class="hero-day"><strong id="pregWeekNum">—</strong></div>
   <div class="hero-status" id="pregWeekSub">Loading…</div>
 </div>
@@ -838,7 +838,7 @@
 <!-- Full-screen positive-test confirmation -->
 <div class="preg-confirm" id="pregConfirm" role="dialog" aria-modal="true" aria-labelledby="pcTitle">
   <div class="pc-circle-bg"></div>
-  <div class="pc-heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7-4.35-9.3-8.3C1 9.5 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.6 3.5 2.9 6.2C19 16.15 12 20.5 12 20.5Z"/></svg></div>
+  <div class="pc-heart"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" style="flex-shrink:0"><path d="M12 21s-6.7-4.35-9.2-8.5C1.1 9.7 2.3 6 5.6 6c2 0 3.2 1.2 4.4 2.6C11.2 7.2 12.4 6 14.4 6c3.3 0 4.5 3.7 2.8 6.5C18.7 16.65 12 21 12 21z"/></svg></div>
   <h2 id="pcTitle">Congratulations</h2>
   <p>You've logged a positive test. Bloom will switch to pregnancy mode and pause cycle tracking.</p>
   <div class="pc-field">
