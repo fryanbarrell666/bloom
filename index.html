@@ -788,7 +788,7 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Log today</div>
+    <div class="card-title" id="pregLogTitle">Log today</div>
     <div class="card-sub" id="pregLogDate"></div>
     <div class="form-group" role="group" aria-label="Symptoms" style="margin-bottom:13px">
       <label>Symptoms</label>
@@ -809,7 +809,8 @@
       <label for="pregNote">Notes</label>
       <textarea id="pregNote" placeholder="How are you feeling today?"></textarea>
     </div>
-    <button class="btn-save" onclick="savePregEntry()">Save today's entry</button>
+    <button class="btn-save" id="pregSaveBtn" onclick="savePregEntry()">Save today's entry</button>
+    <div class="edit-entry-link" id="pregBackToToday" style="display:none" role="button" tabindex="0" onclick="editPregDate(fmtDate(new Date()))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();editPregDate(fmtDate(new Date()));}">← Log today instead</div>
   </div>
 
   <div class="card">
@@ -3311,13 +3312,8 @@ function renderPregHome() {
   } else {
     expCard.hidden = true;
   }
-  // Log-today prefill
-  document.getElementById('pregLogDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  const today = fmtDate(new Date()), pe = getPregEntries()[today];
-  pregSelectedSymptoms = new Set(pe?.symptoms || []);
-  document.querySelectorAll('#pregSymptomBtns .period-btn').forEach(b=>{const on=pregSelectedSymptoms.has(b.dataset.val); b.classList.toggle('active',on); setPressed(b,on);});
-  document.getElementById('pregWeight').value = pe?.weight ?? '';
-  document.getElementById('pregNote').value = pe?.notes || '';
+  // Log form defaults to today each time Home is opened (past dates are edited in-place)
+  loadPregForm(fmtDate(new Date()));
   // Resources
   const res = PREGNANCY_RESOURCES[g.trimester] || PREGNANCY_RESOURCES.first;
   document.getElementById('pregResTrimester').textContent = `${g.trimesterLabel} · trusted sources`;
@@ -3342,25 +3338,48 @@ function renderPregRecent() {
     const tags=[];
     if (e.weight!=null) tags.push(`<span class="tag tag-temp">⚖ ${e.weight}</span>`);
     (e.symptoms||[]).forEach(sy=>tags.push(`<span class="tag tag-lh-none">${symLabel(sy)}</span>`));
-    return `<div class="log-entry" style="cursor:default"><div class="log-date-col"><div class="ld-day">${day}</div><div class="ld-mon">${mon}</div></div><div class="log-data"><div class="log-tags">${tags.join('')||'<span style="color:var(--blush);font-size:12px">No tags</span>'}</div>${e.notes?`<div class="log-note">"${e.notes}"</div>`:''}</div></div>`;
+    return `<div class="log-entry" role="button" tabindex="0" aria-label="Edit entry for ${d.toLocaleDateString('en-US',{month:'long',day:'numeric'})}" onclick="editPregDate('${ds}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();editPregDate('${ds}');}"><div class="log-date-col"><div class="ld-day">${day}</div><div class="ld-mon">${mon}</div></div><div class="log-data"><div class="log-tags">${tags.join('')||'<span style="color:var(--blush);font-size:12px">No tags</span>'}</div>${e.notes?`<div class="log-note">"${e.notes}"</div>`:''}</div></div>`;
   }).join('');
   wrap.innerHTML = keys.length>5 ? `<button class="btn-outline" onclick="pregShowAll=!pregShowAll;renderPregRecent()">${pregShowAll?'Show less':'View all ('+keys.length+')'}</button>` : '';
 }
 
 let pregSelectedSymptoms = new Set();
+let pregEditDate = null;   // the date the log form is currently editing
 function togglePregSymptom(el) {
   const v=el.dataset.val, has=!pregSelectedSymptoms.has(v);
   has ? pregSelectedSymptoms.add(v) : pregSelectedSymptoms.delete(v);
   el.classList.toggle('active',has); setPressed(el,has);
 }
+// Load a date's saved entry into the always-editable log form (no lock state).
+function loadPregForm(ds) {
+  pregEditDate = ds;
+  const pe = getPregEntries()[ds];
+  pregSelectedSymptoms = new Set(pe?.symptoms || []);
+  document.querySelectorAll('#pregSymptomBtns .period-btn').forEach(b=>{const on=pregSelectedSymptoms.has(b.dataset.val); b.classList.toggle('active',on); setPressed(b,on);});
+  document.getElementById('pregWeight').value = pe?.weight ?? '';
+  document.getElementById('pregNote').value = pe?.notes || '';
+  const isToday = ds === fmtDate(new Date());
+  const d = new Date(ds+'T00:00:00');
+  document.getElementById('pregLogTitle').textContent = isToday ? 'Log today' : 'Edit entry';
+  document.getElementById('pregLogDate').textContent = (isToday ? '' : 'Editing · ') + d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('pregSaveBtn').textContent = isToday ? "Save today's entry" : 'Update entry';
+  document.getElementById('pregBackToToday').style.display = isToday ? 'none' : 'flex';
+}
+// Tap a recent entry (or "Log today instead") to edit that date in the same form.
+function editPregDate(ds) {
+  loadPregForm(ds);
+  document.getElementById('pregLogTitle').scrollIntoView({behavior:'smooth', block:'start'});
+}
 function savePregEntry() {
-  const today = fmtDate(new Date());
+  const ds = pregEditDate || fmtDate(new Date());
   const w = document.getElementById('pregWeight').value, n = document.getElementById('pregNote').value;
   const e = getPregEntries();
-  const entry = { date:today, symptoms:[...pregSelectedSymptoms], notes:n, timestamp:Date.now() };
-  if (w!=='') entry.weight = parseFloat(w);
-  e[today] = entry; savePregEntries(e);
-  showToast("✓ Saved today's entry");
+  const existed = !!e[ds];
+  // One date = one entry: merge into the existing record for this date, never duplicate.
+  const entry = { ...(e[ds]||{}), date:ds, symptoms:[...pregSelectedSymptoms], notes:n, timestamp:Date.now() };
+  if (w!=='') entry.weight = parseFloat(w); else delete entry.weight;
+  e[ds] = entry; savePregEntries(e);
+  showToast(existed ? '✓ Updated' : '✓ Saved');
   renderPregRecent();
   if (syncCode) pushSync();
 }
