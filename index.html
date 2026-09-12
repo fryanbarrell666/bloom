@@ -357,6 +357,21 @@
   .res-arrow svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
   .care-note { font-size: 12px; color: var(--mid); line-height: 1.55; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(124,139,94,0.16); }
 
+  /* Pregnancy log: date header + stepper */
+  .preg-log-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .preg-log-datewrap { flex: 1; text-align: center; min-width: 0; }
+  .preg-log-head .date-step-btn:disabled { opacity: 0; pointer-events: none; }
+
+  /* Pregnancy log: saved confirmation card */
+  .saved-wrap { position: relative; }
+  .saved-pill { position: absolute; top: -2px; right: 0; display: inline-flex; align-items: center; gap: 5px; background: rgba(111,160,124,0.16); color: var(--fertile-text); font-size: 12px; font-weight: 600; padding: 5px 11px 5px 9px; border-radius: 20px; }
+  .saved-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--light-mid); margin-bottom: 8px; }
+  #savedSymptoms .period-btn { pointer-events: none; cursor: default; }
+  .saved-details { font-size: 14px; color: var(--ink); margin-top: 14px; }
+  .saved-details .sd-label { color: var(--light-mid); }
+  .saved-notes { font-size: 13px; color: var(--mid); font-style: italic; line-height: 1.5; margin-top: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .saved-time { font-size: 12px; color: var(--light-mid); margin-top: 14px; }
+
   /* "What to expect" list */
   .appt-exp-list { list-style: none; margin: 6px 0 12px; }
   .appt-exp-list li { position: relative; padding-left: 20px; font-size: 13px; color: var(--mid); line-height: 1.5; margin-bottom: 9px; }
@@ -787,30 +802,53 @@
     <div class="care-note">Every visit is a little different — Dr. Gavrilman sets the plan for yours.</div>
   </div>
 
-  <div class="card">
-    <div class="card-title" id="pregLogTitle">Log today</div>
-    <div class="card-sub" id="pregLogDate"></div>
-    <div class="form-group" role="group" aria-label="Symptoms" style="margin-bottom:13px">
-      <label>Symptoms</label>
-      <div class="period-row preg-log-chips" id="pregSymptomBtns">
-        <button type="button" class="period-btn" data-val="nausea"       aria-pressed="false" onclick="togglePregSymptom(this)">Nausea</button>
-        <button type="button" class="period-btn" data-val="fatigue"      aria-pressed="false" onclick="togglePregSymptom(this)">Fatigue</button>
-        <button type="button" class="period-btn" data-val="cravings"     aria-pressed="false" onclick="togglePregSymptom(this)">Cravings</button>
-        <button type="button" class="period-btn" data-val="heartburn"    aria-pressed="false" onclick="togglePregSymptom(this)">Heartburn</button>
-        <button type="button" class="period-btn" data-val="backache"     aria-pressed="false" onclick="togglePregSymptom(this)">Backache</button>
-        <button type="button" class="period-btn" data-val="movement"     aria-pressed="false" onclick="togglePregSymptom(this)">Felt movement</button>
+  <div class="card" id="pregLogCard">
+    <!-- Shared date header + stepper (up to 3 days back, never past today) -->
+    <div class="preg-log-head">
+      <button type="button" class="date-step-btn" id="pregPrevDay" aria-label="Previous day" onclick="stepPregDate(-1)">‹</button>
+      <div class="preg-log-datewrap">
+        <div class="card-title" id="pregLogTitle" style="margin-bottom:0">Log today</div>
+        <div class="card-sub" id="pregLogDate" style="margin-bottom:0"></div>
       </div>
+      <button type="button" class="date-step-btn" id="pregNextDay" aria-label="Next day" onclick="stepPregDate(1)">›</button>
     </div>
-    <div class="form-group" style="margin-bottom:13px">
-      <label for="pregWeight">Weight (optional)</label>
-      <input type="number" id="pregWeight" step="0.1" inputmode="decimal" placeholder="lbs">
+
+    <!-- EDIT state: the form -->
+    <div id="pregLogForm">
+      <div class="form-group" role="group" aria-label="Symptoms" style="margin-bottom:13px">
+        <label>Symptoms</label>
+        <div class="period-row preg-log-chips" id="pregSymptomBtns">
+          <button type="button" class="period-btn" data-val="nausea"       aria-pressed="false" onclick="togglePregSymptom(this)">Nausea</button>
+          <button type="button" class="period-btn" data-val="fatigue"      aria-pressed="false" onclick="togglePregSymptom(this)">Fatigue</button>
+          <button type="button" class="period-btn" data-val="cravings"     aria-pressed="false" onclick="togglePregSymptom(this)">Cravings</button>
+          <button type="button" class="period-btn" data-val="heartburn"    aria-pressed="false" onclick="togglePregSymptom(this)">Heartburn</button>
+          <button type="button" class="period-btn" data-val="backache"     aria-pressed="false" onclick="togglePregSymptom(this)">Backache</button>
+          <button type="button" class="period-btn" data-val="movement"     aria-pressed="false" onclick="togglePregSymptom(this)">Felt movement</button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:13px">
+        <label for="pregWeight">Weight (optional)</label>
+        <input type="number" id="pregWeight" step="0.1" inputmode="decimal" placeholder="lbs">
+      </div>
+      <div class="form-group" style="margin-bottom:13px">
+        <label for="pregNote">Notes</label>
+        <textarea id="pregNote" placeholder="How are you feeling today?"></textarea>
+      </div>
+      <button class="btn-save" id="pregSaveBtn" onclick="savePregEntry()">Save entry</button>
     </div>
-    <div class="form-group" style="margin-bottom:13px">
-      <label for="pregNote">Notes</label>
-      <textarea id="pregNote" placeholder="How are you feeling today?"></textarea>
+
+    <!-- SAVED state: persistent confirmation summary -->
+    <div id="pregSavedCard" class="saved-wrap" hidden>
+      <div class="saved-pill"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>Logged</div>
+      <div id="savedSymptomsWrap" hidden>
+        <div class="saved-label">Symptoms</div>
+        <div class="period-row preg-log-chips" id="savedSymptoms"></div>
+      </div>
+      <div class="saved-details" id="savedDetails" hidden></div>
+      <div class="saved-notes" id="savedNotes" hidden></div>
+      <div class="saved-time" id="savedTime"></div>
+      <button class="btn-outline" id="pregEditBtn" onclick="editCurrentPreg()" style="margin-top:14px">Edit entry</button>
     </div>
-    <button class="btn-save" id="pregSaveBtn" onclick="savePregEntry()">Save today's entry</button>
-    <div class="edit-entry-link" id="pregBackToToday" style="display:none" role="button" tabindex="0" onclick="editPregDate(fmtDate(new Date()))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();editPregDate(fmtDate(new Date()));}">← Log today instead</div>
   </div>
 
   <div class="card">
@@ -3312,8 +3350,8 @@ function renderPregHome() {
   } else {
     expCard.hidden = true;
   }
-  // Log form defaults to today each time Home is opened (past dates are edited in-place)
-  loadPregForm(fmtDate(new Date()));
+  // Log card opens on today each time Home is shown (saved card if logged, else empty form)
+  showPregDate(fmtDate(new Date()));
   // Resources
   const res = PREGNANCY_RESOURCES[g.trimester] || PREGNANCY_RESOURCES.first;
   document.getElementById('pregResTrimester').textContent = `${g.trimesterLabel} · trusted sources`;
@@ -3344,43 +3382,95 @@ function renderPregRecent() {
 }
 
 let pregSelectedSymptoms = new Set();
-let pregEditDate = null;   // the date the log form is currently editing
+let pregEditDate = null;      // date currently shown in the log card
+const PREG_BACK_DAYS = 3;     // stepper reaches this many days back from today
+const PREG_SYM_LABELS = { nausea:'Nausea', fatigue:'Fatigue', cravings:'Cravings', heartburn:'Heartburn', backache:'Backache', movement:'Felt movement' };
+
 function togglePregSymptom(el) {
   const v=el.dataset.val, has=!pregSelectedSymptoms.has(v);
   has ? pregSelectedSymptoms.add(v) : pregSelectedSymptoms.delete(v);
   el.classList.toggle('active',has); setPressed(el,has);
 }
-// Load a date's saved entry into the always-editable log form (no lock state).
-function loadPregForm(ds) {
+function pregDayName(ds) {
+  const today=fmtDate(new Date());
+  if (ds===today) return 'Today';
+  const y=new Date(); y.setDate(y.getDate()-1);
+  if (ds===fmtDate(y)) return 'Yesterday';
+  return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{weekday:'long'});
+}
+function pregMinDate() { const d=new Date(fmtDate(new Date())+'T00:00:00'); d.setDate(d.getDate()-PREG_BACK_DAYS); return fmtDate(d); }
+// Shared header: title/date + stepper enabled range (≤3 days back, never past today).
+function updatePregHeader(ds) {
+  const today=fmtDate(new Date());
+  document.getElementById('pregLogTitle').textContent = pregDayName(ds);
+  document.getElementById('pregLogDate').textContent = new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('pregNextDay').disabled = ds>=today;
+  document.getElementById('pregPrevDay').disabled = ds<=pregMinDate();
+}
+// Show a date: its saved summary if an entry exists, else an empty editable form.
+function showPregDate(ds) {
+  pregEditDate = ds;
+  if (getPregEntries()[ds]) showPregSaved(ds); else showPregEditForm(ds);
+}
+// EDIT state — pre-populate the form for a date (existing entry or blank).
+function showPregEditForm(ds) {
   pregEditDate = ds;
   const pe = getPregEntries()[ds];
   pregSelectedSymptoms = new Set(pe?.symptoms || []);
   document.querySelectorAll('#pregSymptomBtns .period-btn').forEach(b=>{const on=pregSelectedSymptoms.has(b.dataset.val); b.classList.toggle('active',on); setPressed(b,on);});
   document.getElementById('pregWeight').value = pe?.weight ?? '';
   document.getElementById('pregNote').value = pe?.notes || '';
-  const isToday = ds === fmtDate(new Date());
-  const d = new Date(ds+'T00:00:00');
-  document.getElementById('pregLogTitle').textContent = isToday ? 'Log today' : 'Edit entry';
-  document.getElementById('pregLogDate').textContent = (isToday ? '' : 'Editing · ') + d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  document.getElementById('pregSaveBtn').textContent = isToday ? "Save today's entry" : 'Update entry';
-  document.getElementById('pregBackToToday').style.display = isToday ? 'none' : 'flex';
+  document.getElementById('pregSaveBtn').textContent = ds===fmtDate(new Date()) ? "Save today's entry" : 'Save entry';
+  updatePregHeader(ds);
+  document.getElementById('pregSavedCard').hidden = true;
+  document.getElementById('pregLogForm').hidden = false;
 }
-// Tap a recent entry (or "Log today instead") to edit that date in the same form.
+// SAVED state — persistent confirmation summary for a date's entry.
+function showPregSaved(ds) {
+  pregEditDate = ds;
+  const e = getPregEntries()[ds]; if (!e) { showPregEditForm(ds); return; }
+  updatePregHeader(ds);
+  const symWrap=document.getElementById('savedSymptomsWrap'), symBox=document.getElementById('savedSymptoms');
+  const syms=e.symptoms||[];
+  if (syms.length) { symBox.innerHTML = syms.map(v=>`<span class="period-btn active">${PREG_SYM_LABELS[v]||cap(v)}</span>`).join(''); symWrap.hidden=false; }
+  else symWrap.hidden=true;
+  const det=document.getElementById('savedDetails');
+  if (e.weight!=null && e.weight!=='') { det.innerHTML = `<span class="sd-label">Weight</span> ${e.weight} lb`; det.hidden=false; }
+  else det.hidden=true;
+  const notes=document.getElementById('savedNotes');
+  if (e.notes && e.notes.trim()) { notes.textContent = e.notes; notes.hidden=false; }
+  else notes.hidden=true;
+  const t=new Date(e.timestamp||Date.now());
+  document.getElementById('savedTime').textContent = `Logged ${t.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})} · ${t.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+  document.getElementById('pregLogForm').hidden = true;
+  document.getElementById('pregSavedCard').hidden = false;
+}
+// "Edit entry" — reopen the editable form for the current date (always one tap away).
+function editCurrentPreg() { showPregEditForm(pregEditDate); }
+// Prev/next day stepper: back up to PREG_BACK_DAYS, forward never past today.
+function stepPregDate(delta) {
+  const today=fmtDate(new Date()), min=pregMinDate();
+  const d=new Date((pregEditDate||today)+'T00:00:00'); d.setDate(d.getDate()+delta);
+  const ds=fmtDate(d);
+  if (delta>0 && ds>today) return;
+  if (delta<0 && ds<min) return;
+  showPregDate(ds);
+}
+// Tap a recent entry / "View all" → open that date in the log card.
 function editPregDate(ds) {
-  loadPregForm(ds);
-  document.getElementById('pregLogTitle').scrollIntoView({behavior:'smooth', block:'start'});
+  showPregDate(ds);
+  document.getElementById('pregLogCard').scrollIntoView({behavior:'smooth', block:'start'});
 }
 function savePregEntry() {
   const ds = pregEditDate || fmtDate(new Date());
   const w = document.getElementById('pregWeight').value, n = document.getElementById('pregNote').value;
   const e = getPregEntries();
-  const existed = !!e[ds];
-  // One date = one entry: merge into the existing record for this date, never duplicate.
+  // One date = one entry: the stored set equals the current selection (replace, never union/duplicate).
   const entry = { ...(e[ds]||{}), date:ds, symptoms:[...pregSelectedSymptoms], notes:n, timestamp:Date.now() };
   if (w!=='') entry.weight = parseFloat(w); else delete entry.weight;
   e[ds] = entry; savePregEntries(e);
-  showToast(existed ? '✓ Updated' : '✓ Saved');
   renderPregRecent();
+  showPregSaved(ds);   // transition to the persistent saved card (replaces the toast)
   if (syncCode) pushSync();
 }
 
