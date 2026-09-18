@@ -3256,8 +3256,11 @@ function weeksAtDate(preg, dateStr) {
   const lmp = new Date(preg.startLMP+'T00:00:00'), d = new Date(dateStr+'T00:00:00');
   return Math.floor(Math.max(0, (d - lmp)/86400000) / 7);
 }
-function apptBand(w) {
-  return w<=10 ? 'early' : w<=14 ? 'firstScreen' : w<=23 ? 'anatomy' : w<=27 ? 'glucose' : w<=35 ? 'thirdRoutine' : 'nearTerm';
+function apptBand(w, isFirstVisit=false) {
+  // "Your first prenatal visit" content only applies when that visit is still ahead;
+  // an early appointment once she's past it is a routine follow-up ("Around this visit").
+  if (w<=10) return isFirstVisit ? 'early' : 'firstScreen';
+  return w<=14 ? 'firstScreen' : w<=23 ? 'anatomy' : w<=27 ? 'glucose' : w<=35 ? 'thirdRoutine' : 'nearTerm';
 }
 
 const clampWeek = w => Math.max(4, Math.min(40, w));
@@ -3340,7 +3343,9 @@ function renderPregHome() {
   const expCard = document.getElementById('apptExpectCard');
   if (apptSet) {
     const wAt = weeksAtDate(s.pregnancy, s.pregnancy.nextAppt);
-    const band = APPT_EXPECTATIONS[apptBand(wAt)];
+    // First prenatal visit is typically ~8 weeks; if she's still ≤7 weeks today it's likely ahead
+    const isFirstVisit = pregGestation(s.pregnancy).weeks <= 7;
+    const band = APPT_EXPECTATIONS[apptBand(wAt, isFirstVisit)];
     document.getElementById('apptExpHeading').textContent = band.heading;
     document.getElementById('apptExpWhen').textContent = `${fmtLongDate(new Date(s.pregnancy.nextAppt+'T00:00:00'))} · around week ${wAt}`;
     document.getElementById('apptExpList').innerHTML = band.typical.map(t=>`<li>${t}</li>`).join('');
@@ -3509,7 +3514,7 @@ function updatePregDates() {
 function savePregAppt() {
   const s = getSettings(); if (!s.pregnancy) return;
   s.pregnancy.nextAppt = document.getElementById('preg-appt').value || null;
-  saveSettingsData(s); showToast('✓ Appointment saved');
+  saveSettingsData(s); renderPregHome(); showToast('✓ Appointment saved');
   if (syncCode) pushSync();
 }
 // Tapping the Home "Next appointment" tile hits its overlaid native date input directly,
