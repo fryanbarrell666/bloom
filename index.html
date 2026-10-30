@@ -339,6 +339,11 @@
   /* Pregnancy hero (sage, same shape as cycle hero) */
   .preg-hero .hero-wordmark { display: flex; align-items: center; gap: 8px; color: #fff; }
   .preg-hero .hero-wordmark svg { width: 18px; height: 18px; }
+  /* Header color follows the trimester: leaf → bloom → fruit (all AA with white text) */
+  #preg-hero { transition: background-color 0.6s ease, box-shadow 0.6s ease; }
+  #preg-hero[data-trimester="first"]  { background-color: #66744A; box-shadow: 0 8px 26px rgba(102,116,74,0.26); }
+  #preg-hero[data-trimester="second"] { background-color: #8E5A6B; box-shadow: 0 8px 26px rgba(142,90,107,0.26); }
+  #preg-hero[data-trimester="third"]  { background-color: #6B4E71; box-shadow: 0 8px 26px rgba(107,78,113,0.26); }
 
   /* Milestone / size card */
   .milestone-card { display: flex; gap: 16px; align-items: center; }
@@ -3269,7 +3274,8 @@ function pregGestation(preg) {
   const today = new Date(fmtDate(new Date())+'T00:00:00');
   const days = Math.max(0, Math.round((today - lmp)/86400000));
   const weeks = Math.floor(days/7), extraDays = days%7;
-  const trimester = weeks < 14 ? 'first' : weeks < 28 ? 'second' : 'third';
+  // First trimester = weeks 1–12; second begins at 13 completed weeks; third at 28.
+  const trimester = weeks < 13 ? 'first' : weeks < 28 ? 'second' : 'third';
   const trimesterLabel = trimester==='first' ? 'First trimester' : trimester==='second' ? 'Second trimester' : 'Third trimester';
   const due = new Date(preg.dueDate+'T00:00:00');
   const weeksToGo = Math.max(0, Math.round((due - today)/(7*86400000)));
@@ -3326,6 +3332,7 @@ function renderPregHome() {
   // Hero
   document.getElementById('pregWeekNum').textContent = g.extraDays ? `Week ${g.weeks} + ${g.extraDays} day${g.extraDays!==1?'s':''}` : `Week ${g.weeks}`;
   document.getElementById('pregWeekSub').textContent = `${g.trimesterLabel} · ${g.weeksToGo} week${g.weeksToGo!==1?'s':''} to go`;
+  document.getElementById('preg-hero').dataset.trimester = g.trimester;
   // Size card
   document.getElementById('pregSizeEmoji').textContent = info.emoji;
   document.getElementById('pregSizeLabel').textContent = `About the size of a ${info.size.toLowerCase()}`;
